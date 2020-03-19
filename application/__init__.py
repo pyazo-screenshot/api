@@ -31,7 +31,6 @@ def init_middlewares(app: FastAPI):
 
 
 def create_app() -> FastAPI:
-    Base.metadata.create_all(bind=engine)
     app = FastAPI()
     init_routers(app)
     init_middlewares(app)
