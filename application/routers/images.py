@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, UploadFile
-from fastapi.params import File
+from fastapi import APIRouter, Depends, UploadFile, Response, status
+from fastapi.params import File, Path
 
 from domain.auth.dto.user import UserGet
 from domain.auth.models.user import User
+from domain.images.actions.delete_image import DeleteImageAction
 from domain.images.actions.save_image import SaveImageAction
 from domain.images.dto.image import ImageGet
 from domain.images.repositories.image import ImageRepository
@@ -18,6 +19,17 @@ async def upload_image(
     authed_user: User = Depends(get_current_user)
 ):
     return upload_action(upload_file, UserGet(username=authed_user.username, id=authed_user.id))
+
+
+@router.delete('/{image_id}')
+async def delete_image(
+    response: Response,
+    image_id: int = Path(..., title="The ID of the image to delete"),
+    authed_user: User = Depends(get_current_user),
+    delete_image_action: DeleteImageAction = Depends(DeleteImageAction),
+):
+    delete_image_action(image_id)
+    response.status_code = status.HTTP_204_NO_CONTENT
 
 
 @router.get('/')
