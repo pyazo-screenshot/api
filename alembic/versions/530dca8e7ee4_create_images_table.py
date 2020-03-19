@@ -22,7 +22,6 @@ def upgrade():
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('owner_id', sa.Integer),
         sa.Column('path', sa.String(128), nullable=False),
-        sa.Column('hashed_password', sa.Unicode(200), nullable=False),
     )
     op.create_foreign_key(u'FK_image_user', 'images', 'users', ['owner_id'], ['id'])
 
