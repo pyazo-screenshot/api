@@ -1,0 +1,11 @@
+Metadata-Version: 1.2
+Name: pyazo-api
+Version: 0.1.0
+Summary: Screenshot upload service
+Home-page: UNKNOWN
+Author: Jelena Dokic
+Author-email: jelena.dpk@gmail.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Requires-Python: >=3.6,<4.0

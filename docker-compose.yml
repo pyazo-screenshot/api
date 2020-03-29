@@ -2,14 +2,21 @@ version: '3'
 
 services:
   db:
-    image: mariadb:latest
+    image: postgres:12
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: pyazo
-    ports:
-    - 3306:3306
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: pyazo
     volumes:
-    - db_data:/var/lib/mysql
+    - db:/var/lib/postgresql/data
+
+  api:
+    build: .
+    volumes:
+      - public:/app/public
+    ports:
+      - 8000:8000
 
 volumes:
-  db_data:
+  db:
+  public:
