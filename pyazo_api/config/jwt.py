@@ -1,4 +1,18 @@
-import os
+from os import getenv
 
-SECRET = os.getenv('JWT_SECRET', 'jwt-secret')
-ALGORITHM = os.getenv('JWT_ALGORITHM', 'HS256')
+
+class BaseConfig:
+	ALGORITHM = getenv('JWT_ALGORITHM', 'HS256')
+	JWT_DECODE_LEEWAY = 10
+
+
+class DevConfig(BaseConfig):
+	SECRET = getenv('JWT_SECRET', 'secret-key')
+
+
+class TestConfig(BaseConfig):
+	SECRET = getenv('JWT_SECRET', 'secret-key')
+
+
+class ProdConfig(BaseConfig):
+	SECRET = getenv('JWT_SECRET', None)

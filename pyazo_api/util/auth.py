@@ -4,7 +4,7 @@ from fastapi.params import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jwt import PyJWTError
 
-from pyazo_api.config.jwt import SECRET, ALGORITHM
+from pyazo_api.config import config
 from pyazo_api.domain.auth.dto.user import TokenData
 from pyazo_api.domain.auth.repositories.user import UserRepository
 
@@ -18,7 +18,7 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
     else:
         expire = datetime.utcnow() + timedelta(days=7300)
     to_encode.update({'exp': expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, config.jwt.SECRET, algorithm=config.jwt.ALGORITHM)
 
     return encoded_jwt
 
@@ -28,7 +28,7 @@ async def get_current_user(
         user_repository: UserRepository = Depends(UserRepository)
 ):
     try:
-        payload = jwt.decode(token, SECRET, ALGORITHM)
+        payload = jwt.decode(token, config.jwt.SECRET, algorithm=config.jwt.ALGORITHM)
         username: str = payload.get('sub')
         if username is None:
             return None
