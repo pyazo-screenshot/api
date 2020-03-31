@@ -19,5 +19,6 @@ depends_on = None
 def upgrade():
     op.add_column('images', sa.Column('private', sa.Boolean(), nullable=True))
 
+
 def downgrade():
     op.drop_column('images', 'private')

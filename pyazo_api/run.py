@@ -1,8 +1,17 @@
-import os
+from os import getenv
 
-if not os.getenv('ENV'):
-  from dotenv import load_dotenv
-  load_dotenv()
+from alembic import command
+from alembic.config import Config
+
+if not getenv('ENV'):
+	from dotenv import load_dotenv
+	load_dotenv()
 
 from pyazo_api.application import create_app  # noqa: E402
 app = create_app()
+
+from pyazo_api.config import config  # noqa: E402
+
+alembic_cfg = Config("pyazo_api/alembic.ini")
+alembic_cfg.set_main_option("sqlalchemy.url", config.db.SQLALCHEMY_DATABASE_URI)
+command.upgrade(alembic_cfg, "head")

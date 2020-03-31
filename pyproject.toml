@@ -6,7 +6,7 @@ authors = ["Jelena Dokic <jelena.dpk@gmail.com>"]
 license = "BSD-3-Clause"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 alembic = "^1.4.2"
 argon2-cffi = "^19.2.0"
 fastapi = "^0.53.1"
