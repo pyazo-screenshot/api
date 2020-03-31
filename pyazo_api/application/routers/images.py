@@ -15,10 +15,11 @@ router = APIRouter()
 @router.post('/')
 async def upload_image(
     upload_file: UploadFile = File(...),
-    upload_action: SaveImageAction = Depends(SaveImageAction),
+    private: bool = False,
+    upload_action: SaveImageAction = Depends(),
     authed_user: User = Depends(get_current_user)
 ):
-    return upload_action(upload_file, UserGet(username=authed_user.username, id=authed_user.id))
+    return upload_action(upload_file, private, UserGet(username=authed_user.username, id=authed_user.id))
 
 
 @router.delete('/{image_id}')
@@ -41,7 +42,8 @@ async def get_images(
         ImageGet(
             id=image.id,
             owner_id=image.owner_id,
-            path=image.path
+            path=image.path,
+            private=image.private
         )
         for image in image_repository.get_all_by_user_id(authed_user.id)
     ]

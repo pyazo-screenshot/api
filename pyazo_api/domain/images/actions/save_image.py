@@ -22,7 +22,7 @@ class SaveImageAction:
         finally:
             upload_file.file.close()
 
-    def __call__(self, upload_file: UploadFile, uploader: UserGet):
+    def __call__(self, upload_file: UploadFile, private: bool, uploader: UserGet):
         random_string = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(32))
         extension = upload_file.filename.split('.')[-1]
         file_name = f'{random_string}.{extension}'
@@ -33,6 +33,7 @@ class SaveImageAction:
         return self.image_repository.create_image(
             ImageUpload(
                 owner_id=uploader.id,
-                path=file_name
+                path=file_name,
+                private=private
             )
         )

@@ -25,6 +25,6 @@ CMD ["sh", "pyazo_api/entrypoint.sh"]
 ENV PATH="/app/.venv/bin:$PATH" \
   PYTHONUNBUFFERED=1
 
-RUN apk add --no-cache libc-dev binutils libpq && mkdir /public
+RUN apk add --no-cache libc-dev binutils libpq && mkdir -p public/images
 
 COPY --from=builder /app/ ./

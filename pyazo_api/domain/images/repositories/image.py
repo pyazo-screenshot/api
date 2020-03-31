@@ -24,7 +24,8 @@ class ImageRepository:
     def create_image(self, image: ImageUpload) -> Image:
         db_image = Image(
             path=image.path,
-            owner_id=image.owner_id
+            owner_id=image.owner_id,
+            private=image.private
         )
         self.db.add(db_image)
         self.db.commit()
