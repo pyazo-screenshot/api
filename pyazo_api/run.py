@@ -1,5 +1,8 @@
-from pyazo_api.application import create_app
-from dotenv import load_dotenv
+import os
 
-load_dotenv()
+if not os.getenv('ENV'):
+  from dotenv import load_dotenv
+  load_dotenv()
+
+from pyazo_api.application import create_app  # noqa: E402
 app = create_app()

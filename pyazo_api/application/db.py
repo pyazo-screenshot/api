@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from pyazo_api.config import config
 
-SQLALCHEMY_DATABASE_URL = "postgresql://root:root@db/pyazo"
+SQLALCHEMY_DATABASE_URL = config.db.SQLALCHEMY_DATABASE_URI
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL

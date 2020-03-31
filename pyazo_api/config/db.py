@@ -8,11 +8,11 @@ class BaseConfig:
 
 
 class DevConfig(BaseConfig):
-	SQLALCHEMY_DATABASE_URI = getenv('SQLALCHEMY_DATABASE_URI', 'sqlite://pyazo.db')
+	SQLALCHEMY_DATABASE_URI = getenv('SQLALCHEMY_DATABASE_URI', 'sqlite:///pyazo.db')
 
 
 class TestConfig(BaseConfig):
-	SQLALCHEMY_DATABASE_URI = getenv('SQLALCHEMY_DATABASE_URI', 'sqlite://')
+	SQLALCHEMY_DATABASE_URI = getenv('SQLALCHEMY_DATABASE_URI', 'sqlite:///:memory:')
 
 
 class ProdConfig(BaseConfig):
