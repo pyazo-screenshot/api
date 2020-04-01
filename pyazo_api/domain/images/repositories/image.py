@@ -18,6 +18,9 @@ class ImageRepository:
     def find_by_id(self, image_id: int) -> Optional[Image]:
         return self.db.query(Image).filter(Image.id == image_id).first()
 
+    def find_by_path(self, image_path: str) -> Optional[Image]:
+        return self.db.query(Image).filter(Image.path == image_path).first()
+
     def get_all_by_user_id(self, user_id: int) -> List[Image]:
         return self.db.query(Image).filter(Image.owner_id == user_id).all()
 

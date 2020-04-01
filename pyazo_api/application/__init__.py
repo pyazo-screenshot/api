@@ -15,6 +15,12 @@ def init_routers(app: FastAPI):
         prefix='/images'
     )
 
+    from .routers import static
+    app.include_router(
+        static.router,
+        prefix='/static'
+    )
+
 
 def init_middlewares(app: FastAPI):
     from fastapi.middleware.cors import CORSMiddleware

@@ -1,5 +1,8 @@
 from datetime import timedelta, datetime
+
 import jwt
+from fastapi import Request
+from fastapi.exceptions import HTTPException
 from fastapi.params import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jwt import PyJWTError
@@ -23,9 +26,9 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
-async def get_current_user(
-        token: str = Depends(oauth2_scheme),
-        user_repository: UserRepository = Depends(UserRepository)
+async def get_user(
+        token: str,
+        user_repository: UserRepository
 ):
     try:
         payload = jwt.decode(token, config.jwt.SECRET, algorithm=config.jwt.ALGORITHM)
@@ -38,3 +41,22 @@ async def get_current_user(
     user = user_repository.get_by_username(username=token_data.username)
 
     return user
+
+
+async def get_current_user(
+        token: str = Depends(oauth2_scheme),
+        user_repository: UserRepository = Depends(UserRepository)
+):
+    return await get_user(token, user_repository)
+
+
+async def get_current_user_or_none(
+        request: Request,
+        user_repository: UserRepository = Depends(UserRepository)
+):
+    try:
+        token: str = await oauth2_scheme(request)
+    except HTTPException:
+        return None
+
+    return await get_user(token, user_repository)

@@ -9,7 +9,7 @@ class Image(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     owner_id = Column(Integer, ForeignKey('users.id'))
-    path = Column(String)
+    path = Column(String, index=True)
     private = Column(Boolean, default=False)
 
     owner = relationship('User', back_populates='images')
