@@ -25,7 +25,6 @@ class GetStaticAction:
             if image.owner_id != current_user.id:
                 share = self.share_repository.get_by_user_id_and_image_id(image.id, current_user.id)
                 if not share:
-                    print("3")
                     raise ImageNotFoundException
 
         return FileResponse("public/images/" + image_path, media_type="image/png")
