@@ -5,6 +5,7 @@ from pyazo_api.domain.auth.dto.user import UserGet
 from pyazo_api.domain.auth.dto.user import User as UserDTO
 from pyazo_api.domain.auth.models.user import User
 from pyazo_api.domain.images.actions.delete_image import DeleteImageAction
+from pyazo_api.domain.images.actions.delete_share import DeleteShareAction
 from pyazo_api.domain.images.actions.save_image import SaveImageAction
 from pyazo_api.domain.images.actions.share_image import ShareImageAction
 from pyazo_api.domain.images.dto.image import ImageGet
@@ -51,7 +52,7 @@ async def get_images(
     ]
 
 
-@router.post('/{image_id}/share')
+@router.post('/{image_id}/shares')
 async def share_image(
     image_id: int,
     user: UserDTO,
@@ -59,3 +60,14 @@ async def share_image(
     authed_user: User = Depends(get_current_user)
 ):
     return share_action(image_id, user, UserGet(username=authed_user.username, id=authed_user.id))
+
+
+@router.delete('/shares/{share_id}')
+async def delete_share(
+    response: Response,
+    share_id: int,
+    authed_user: User = Depends(get_current_user),
+    delete_share_action: DeleteShareAction = Depends(),
+):
+    delete_share_action(share_id)
+    response.status_code = status.HTTP_204_NO_CONTENT
