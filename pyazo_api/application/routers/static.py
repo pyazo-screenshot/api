@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 
 from pyazo_api.domain.auth.dto.user import UserGet
 from pyazo_api.domain.auth.models.user import User
-from pyazo_api.domain.static.actions.get_static import GetStaticAction
-from pyazo_api.util.auth import get_current_user_or_none, get_current_user
+from pyazo_api.domain.images.actions.get_static import GetStaticAction
+from pyazo_api.util.auth import get_current_user_or_none
 
 router = APIRouter()
 

@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends, UploadFile, Response, status
 from fastapi.params import File, Path
 
 from pyazo_api.domain.auth.dto.user import UserGet
+from pyazo_api.domain.auth.dto.user import User as UserDTO
 from pyazo_api.domain.auth.models.user import User
 from pyazo_api.domain.images.actions.delete_image import DeleteImageAction
 from pyazo_api.domain.images.actions.save_image import SaveImageAction
+from pyazo_api.domain.images.actions.share_image import ShareImageAction
 from pyazo_api.domain.images.dto.image import ImageGet
 from pyazo_api.domain.images.repositories.image import ImageRepository
 from pyazo_api.util.auth import get_current_user
@@ -47,3 +49,13 @@ async def get_images(
         )
         for image in image_repository.get_all_by_user_id(authed_user.id)
     ]
+
+
+@router.post('/{image_id}/share')
+async def share_image(
+    image_id: int,
+    user: UserDTO,
+    share_action: ShareImageAction = Depends(),
+    authed_user: User = Depends(get_current_user)
+):
+    return share_action(image_id, user, UserGet(username=authed_user.username, id=authed_user.id))
