@@ -1,6 +1,6 @@
 import shutil
-import string
-import random
+import uuid
+
 from pathlib import Path
 from fastapi import UploadFile
 from fastapi.params import Depends
@@ -23,7 +23,7 @@ class SaveImageAction:
             upload_file.file.close()
 
     def __call__(self, upload_file: UploadFile, private: bool, uploader: UserGet):
-        random_string = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(32))
+        random_string = uuid.uuid4()
         extension = upload_file.filename.split('.')[-1]
         file_name = f'{random_string}.{extension}'
         relative_file_path = f'./public/images/{file_name}'
