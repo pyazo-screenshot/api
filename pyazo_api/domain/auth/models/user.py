@@ -12,3 +12,4 @@ class User(Base):
     hashed_password = Column(String)
 
     images = relationship('Image', back_populates='owner')
+    shares = relationship('Share', back_populates='user')

@@ -12,3 +12,4 @@ class Image(Base):
     private = Column(Boolean, default=False)
 
     owner = relationship('User', back_populates='images')
+    shares = relationship('Share', back_populates='image')

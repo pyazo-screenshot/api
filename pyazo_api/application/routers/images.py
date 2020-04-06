@@ -68,5 +68,5 @@ async def delete_share(
     authed_user: User = Depends(get_current_user),
     delete_share_action: DeleteShareAction = Depends(),
 ):
-    delete_share_action(share_id)
+    delete_share_action(share_id, UserGet(username=authed_user.username, id=authed_user.id))
     response.status_code = status.HTTP_204_NO_CONTENT

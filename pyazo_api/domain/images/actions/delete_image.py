@@ -15,7 +15,7 @@ class DeleteImageAction:
         if not image:
             raise ImageNotFoundException
 
-        if not image.owner == current_user:
+        if not image.owner.id == current_user.id:
             raise DeleteImageForbiddenException
 
         path = Path(f'./public/images/{image.id}')
