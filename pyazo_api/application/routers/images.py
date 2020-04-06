@@ -32,7 +32,7 @@ async def delete_image(
     authed_user: User = Depends(get_current_user),
     delete_image_action: DeleteImageAction = Depends(DeleteImageAction),
 ):
-    delete_image_action(image_id)
+    delete_image_action(image_id, UserGet(username=authed_user.username, id=authed_user.id))
     response.status_code = status.HTTP_204_NO_CONTENT
 
 
