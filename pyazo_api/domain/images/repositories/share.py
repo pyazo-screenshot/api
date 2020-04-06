@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
@@ -28,5 +28,8 @@ class ShareRepository:
     def find_by_id(self, share_id: int) -> Optional[Share]:
         return self.db.query(Share).filter(Share.id == share_id).first()
 
-    def get_by_user_id_and_image_id(self, user_id: int, image_id: str):
+    def get_by_user_id_and_image_id(self, user_id: int, image_id: str) -> Optional[Share]:
         return self.db.query(Share).filter(Share.image_id == image_id).filter(Share.user_id == user_id).first()
+
+    def get_all_shares_by_user_id(self, user_id: int) -> List[Share]:
+        return self.db.query(Share).filter(Share.user_id == user_id).all()

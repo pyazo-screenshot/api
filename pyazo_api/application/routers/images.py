@@ -10,6 +10,7 @@ from pyazo_api.domain.images.actions.save_image import SaveImageAction
 from pyazo_api.domain.images.actions.share_image import ShareImageAction
 from pyazo_api.domain.images.dto.image import ImageGet
 from pyazo_api.domain.images.repositories.image import ImageRepository
+from pyazo_api.domain.images.repositories.share import ShareRepository
 from pyazo_api.util.auth import get_current_user
 
 router = APIRouter()
@@ -70,3 +71,18 @@ async def delete_share(
 ):
     delete_share_action(share_id, UserGet(username=authed_user.username, id=authed_user.id))
     response.status_code = status.HTTP_204_NO_CONTENT
+
+
+@router.get('/shares')
+async def get_shares(
+    authed_user: User = Depends(get_current_user),
+    share_repository: ShareRepository = Depends()
+):
+    return [
+        ImageGet(
+            id=share.image.id,
+            owner_id=share.image.owner_id,
+            private=share.image.private
+        )
+        for share in share_repository.get_all_shares_by_user_id(authed_user.id)
+    ]
