@@ -6,6 +6,7 @@ from fastapi import UploadFile
 from fastapi.params import Depends
 
 from pyazo_api.domain.auth.dto.user import UserGet
+from pyazo_api.domain.images.exceptions.image import FileTypeException
 from pyazo_api.domain.images.dto.image import ImageUpload
 from pyazo_api.domain.images.repositories.image import ImageRepository
 
@@ -24,7 +25,10 @@ class SaveImageAction:
 
     def __call__(self, upload_file: UploadFile, private: bool, uploader: UserGet):
         random_string = uuid.uuid4()
-        extension = upload_file.filename.split('.')[-1]
+        extension = upload_file.filename.split('.')[-1].lower()
+        if extension not in ('jpg', 'jpeg', 'tiff', 'gif', 'bmp', 'png', 'webp'):
+            raise FileTypeException
+
         file_name = f'{random_string}.{extension}'
         relative_file_path = f'./public/images/{file_name}'
         destination = Path(relative_file_path)
