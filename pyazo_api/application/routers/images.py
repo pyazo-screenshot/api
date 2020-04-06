@@ -16,7 +16,7 @@ from pyazo_api.util.auth import get_current_user
 router = APIRouter()
 
 
-@router.post('/')
+@router.post('')
 async def upload_image(
     upload_file: UploadFile = File(...),
     private: bool = False,
@@ -37,7 +37,7 @@ async def delete_image(
     response.status_code = status.HTTP_204_NO_CONTENT
 
 
-@router.get('/')
+@router.get('')
 async def get_images(
     authed_user: User = Depends(get_current_user),
     image_repository: ImageRepository = Depends(ImageRepository)

@@ -8,7 +8,11 @@ from starlette.responses import FileResponse
 
 
 class GetStaticAction:
-    def __init__(self, image_repository: ImageRepository = Depends(ImageRepository), share_repository: ShareRepository = Depends()):
+    def __init__(
+            self,
+            image_repository: ImageRepository = Depends(ImageRepository),
+            share_repository: ShareRepository = Depends()
+    ):
         self.image_repository = image_repository
         self.share_repository = share_repository
 
@@ -26,4 +30,4 @@ class GetStaticAction:
                 if not share:
                     raise ImageNotFoundException
 
-        return FileResponse("public/images/" + image_id, media_type="image/png")
+        return FileResponse(f"public/images/{image_id}", media_type="image/png")

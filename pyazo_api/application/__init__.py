@@ -18,7 +18,7 @@ def init_routers(app: FastAPI):
     from .routers import static
     app.include_router(
         static.router,
-        prefix='/static'
+        prefix=''
     )
 
 

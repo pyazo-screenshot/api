@@ -21,6 +21,8 @@ class ShareRepository:
         self.db.commit()
         self.db.refresh(db_share)
 
+        return db_share
+
     def delete(self, share: Share):
         self.db.delete(share)
         self.db.commit()

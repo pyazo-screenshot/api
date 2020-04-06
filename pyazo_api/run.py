@@ -7,12 +7,11 @@ if not getenv('ENV'):
 	from dotenv import load_dotenv
 	load_dotenv()
 
-# from pyazo_api.config import config  # noqa: E402
+#  from pyazo_api.config import config  # noqa: E402
 
-# alembic_cfg = Config("pyazo_api/alembic.ini")
-# alembic_cfg.set_main_option("sqlalchemy.url", config.db.SQLALCHEMY_DATABASE_URI)
-# command.upgrade(alembic_cfg, "head")
+#  alembic_cfg = Config("pyazo_api/alembic.ini")
+#  alembic_cfg.set_main_option("sqlalchemy.url", config.db.SQLALCHEMY_DATABASE_URI)
+#  command.upgrade(alembic_cfg, "head")
 
 from pyazo_api.application import create_app  # noqa: E402
 app = create_app()
-
