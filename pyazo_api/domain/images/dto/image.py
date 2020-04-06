@@ -2,10 +2,10 @@ from pydantic import BaseModel
 
 
 class ImageUpload(BaseModel):
-    path: str
+    id: str
     owner_id: int
     private: bool
 
 
 class ImageGet(ImageUpload):
-    id: int
+    id: str

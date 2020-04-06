@@ -17,8 +17,16 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('images', sa.Column('private', sa.Boolean(), nullable=True))
+    op.create_table(
+        'shares',
+        sa.Column('id', sa.Integer, primary_key=True),
+        sa.Column('image_id', sa.String),
+        sa.Column('user_id', sa.Integer),
+    )
+    op.create_foreign_key(u'FK_share_user', 'shares', 'users', ['user_id'], ['id'])
+    op.create_foreign_key(u'FK_share_image', 'shares', 'images', ['image_id'], ['id'])
+    op.create_unique_constraint("UNIQUE_image_user", "shares", ["image_id", "user_id"])
 
 
 def downgrade():
-    op.drop_column('images', 'private')
+    op.drop_table('shares')

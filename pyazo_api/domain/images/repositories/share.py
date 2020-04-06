@@ -28,5 +28,5 @@ class ShareRepository:
     def find_by_id(self, share_id: int) -> Optional[Share]:
         return self.db.query(Share).filter(Share.id == share_id).first()
 
-    def get_by_user_id_and_image_id(self, user_id: int, image_id: int):
+    def get_by_user_id_and_image_id(self, user_id: int, image_id: str):
         return self.db.query(Share).filter(Share.image_id == image_id).filter(Share.user_id == user_id).first()

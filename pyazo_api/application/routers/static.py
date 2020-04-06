@@ -8,13 +8,13 @@ from pyazo_api.util.auth import get_current_user_or_none
 router = APIRouter()
 
 
-@router.get('/{image_path}')
+@router.get('/{image_id}')
 async def static(
-        image_path: str,
+        image_id: str,
         get_static_action: GetStaticAction = Depends(),
         authed_user: User = Depends(get_current_user_or_none),
 ):
     if authed_user is None:
-        return get_static_action(image_path, None)
+        return get_static_action(image_id, None)
 
-    return get_static_action(image_path, UserGet(id=authed_user.id, username=authed_user.username))
+    return get_static_action(image_id, UserGet(id=authed_user.id, username=authed_user.username))

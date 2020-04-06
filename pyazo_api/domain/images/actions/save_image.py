@@ -32,8 +32,8 @@ class SaveImageAction:
 
         return self.image_repository.create_image(
             ImageUpload(
+                id=file_name,
                 owner_id=uploader.id,
-                path=file_name,
                 private=private
             )
         )

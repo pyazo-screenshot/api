@@ -1,4 +1,3 @@
-from pathlib import Path
 from fastapi.params import Depends
 
 from pyazo_api.domain.images.exceptions.share import ShareNotFoundException

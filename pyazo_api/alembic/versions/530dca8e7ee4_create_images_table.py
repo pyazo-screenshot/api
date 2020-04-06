@@ -19,9 +19,9 @@ depends_on = None
 def upgrade():
     op.create_table(
         'images',
-        sa.Column('id', sa.Integer, primary_key=True),
+        sa.Column('id', sa.String(128), primary_key=True),
         sa.Column('owner_id', sa.Integer),
-        sa.Column('path', sa.String(128), nullable=False),
+        sa.Column('private', sa.Boolean(), nullable=True)
     )
     op.create_foreign_key(u'FK_image_user', 'images', 'users', ['owner_id'], ['id'])
 

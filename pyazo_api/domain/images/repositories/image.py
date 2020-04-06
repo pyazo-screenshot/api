@@ -15,18 +15,15 @@ class ImageRepository:
         self.db.delete(image)
         self.db.commit()
 
-    def find_by_id(self, image_id: int) -> Optional[Image]:
+    def find_by_id(self, image_id: str) -> Optional[Image]:
         return self.db.query(Image).filter(Image.id == image_id).first()
-
-    def find_by_path(self, image_path: str) -> Optional[Image]:
-        return self.db.query(Image).filter(Image.path == image_path).first()
 
     def get_all_by_user_id(self, user_id: int) -> List[Image]:
         return self.db.query(Image).filter(Image.owner_id == user_id).all()
 
     def create_image(self, image: ImageUpload) -> Image:
         db_image = Image(
-            path=image.path,
+            id=image.id,
             owner_id=image.owner_id,
             private=image.private
         )

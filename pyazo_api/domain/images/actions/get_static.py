@@ -1,4 +1,3 @@
-# from pathlib import Path
 from fastapi.params import Depends
 
 from pyazo_api.domain.images.exceptions.image import ImageNotFoundException
@@ -13,8 +12,8 @@ class GetStaticAction:
         self.image_repository = image_repository
         self.share_repository = share_repository
 
-    def __call__(self, image_path: str, current_user: UserGet):
-        image = self.image_repository.find_by_path(image_path)
+    def __call__(self, image_id: str, current_user: UserGet):
+        image = self.image_repository.find_by_id(image_id)
         if not image:
             raise ImageNotFoundException
 
@@ -23,8 +22,8 @@ class GetStaticAction:
                 raise ImageNotFoundException
 
             if image.owner_id != current_user.id:
-                share = self.share_repository.get_by_user_id_and_image_id(image.id, current_user.id)
+                share = self.share_repository.get_by_user_id_and_image_id(current_user.id, image.id)
                 if not share:
                     raise ImageNotFoundException
 
-        return FileResponse("public/images/" + image_path, media_type="image/png")
+        return FileResponse("public/images/" + image_id, media_type="image/png")

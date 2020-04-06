@@ -26,4 +26,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table('account')
+    op.drop_table('users')

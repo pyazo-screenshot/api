@@ -16,7 +16,7 @@ class ShareImageAction:
         self.user_repository = user_repository
         self.share_repository = share_repository
 
-    def __call__(self, image_id: int, share_with: UserBase, user: UserGet):
+    def __call__(self, image_id: str, share_with: UserBase, user: UserGet):
         image = self.image_repository.find_by_id(image_id)
         if not image:
             raise ImageNotFoundException
@@ -28,7 +28,7 @@ class ShareImageAction:
         if not share_with:
             raise UserNotFoundException
 
-        share = self.share_repository.get_by_user_id_and_image_id(image.id, share_with.id)
+        share = self.share_repository.get_by_user_id_and_image_id(share_with.id, image.id)
         if share:
             return
 

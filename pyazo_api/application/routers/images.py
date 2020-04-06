@@ -28,7 +28,7 @@ async def upload_image(
 @router.delete('/{image_id}')
 async def delete_image(
     response: Response,
-    image_id: int = Path(..., title="The ID of the image to delete"),
+    image_id: str = Path(..., title="The ID of the image to delete"),
     authed_user: User = Depends(get_current_user),
     delete_image_action: DeleteImageAction = Depends(DeleteImageAction),
 ):
@@ -45,7 +45,6 @@ async def get_images(
         ImageGet(
             id=image.id,
             owner_id=image.owner_id,
-            path=image.path,
             private=image.private
         )
         for image in image_repository.get_all_by_user_id(authed_user.id)
@@ -54,7 +53,7 @@ async def get_images(
 
 @router.post('/{image_id}/shares')
 async def share_image(
-    image_id: int,
+    image_id: str,
     user: UserDTO,
     share_action: ShareImageAction = Depends(),
     authed_user: User = Depends(get_current_user)
@@ -65,7 +64,7 @@ async def share_image(
 @router.delete('/shares/{share_id}')
 async def delete_share(
     response: Response,
-    share_id: int,
+    share_id: str,
     authed_user: User = Depends(get_current_user),
     delete_share_action: DeleteShareAction = Depends(),
 ):
