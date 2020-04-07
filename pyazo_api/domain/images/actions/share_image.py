@@ -30,7 +30,7 @@ class ShareImageAction:
 
         share = self.share_repository.get_by_user_id_and_image_id(share_with.id, image.id)
         if share:
-            return
+            raise ShareNotAllowedException
 
         return self.share_repository.create_share(
             ShareAdd(
