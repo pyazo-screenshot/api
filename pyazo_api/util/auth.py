@@ -10,6 +10,7 @@ from jwt import PyJWTError
 from pyazo_api.config import config
 from pyazo_api.domain.auth.dto.user import TokenData
 from pyazo_api.domain.auth.repositories.user import UserRepository
+from pyazo_api.domain.auth.exceptions.auth import InvalidJWT
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/login')
 
@@ -34,10 +35,10 @@ async def get_user(
         payload = jwt.decode(token, config.jwt.SECRET, algorithm=config.jwt.ALGORITHM)
         username: str = payload.get('sub')
         if username is None:
-            return None
+            raise InvalidJWT()
         token_data = TokenData(username=username)
     except PyJWTError:
-        return None
+        raise InvalidJWT()
     user = user_repository.get_by_username(username=token_data.username)
 
     return user
@@ -57,6 +58,6 @@ async def get_current_user_or_none(
     try:
         token: str = await oauth2_scheme(request)
     except HTTPException:
-        return None
+        raise InvalidJWT()
 
     return await get_user(token, user_repository)
