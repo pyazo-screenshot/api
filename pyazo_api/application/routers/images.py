@@ -20,10 +20,11 @@ router = APIRouter()
 async def upload_image(
     upload_file: UploadFile = File(...),
     private: bool = False,
+    clear_metadata: bool = False,
     upload_action: SaveImageAction = Depends(),
     authed_user: User = Depends(get_current_user)
 ):
-    return upload_action(upload_file, private, UserGet(username=authed_user.username, id=authed_user.id))
+    return upload_action(upload_file, private, clear_metadata, UserGet(username=authed_user.username, id=authed_user.id))
 
 
 @router.delete('/{image_id}')
