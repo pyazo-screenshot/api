@@ -35,10 +35,10 @@ async def get_user(
         payload = jwt.decode(token, config.jwt.SECRET, algorithm=config.jwt.ALGORITHM)
         username: str = payload.get('sub')
         if username is None:
-            raise InvalidJWT()
+            return None
         token_data = TokenData(username=username)
     except PyJWTError:
-        raise InvalidJWT()
+        return None
     user = user_repository.get_by_username(username=token_data.username)
 
     return user
@@ -48,8 +48,11 @@ async def get_current_user(
         token: str = Depends(oauth2_scheme),
         user_repository: UserRepository = Depends(UserRepository)
 ):
-    return await get_user(token, user_repository)
+    user = await get_user(token, user_repository)
+    if user is None:
+        raise InvalidJWT()
 
+    return user
 
 async def get_current_user_or_none(
         request: Request,
@@ -58,6 +61,6 @@ async def get_current_user_or_none(
     try:
         token: str = await oauth2_scheme(request)
     except HTTPException:
-        raise InvalidJWT()
+        return None
 
     return await get_user(token, user_repository)
