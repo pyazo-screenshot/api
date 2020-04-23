@@ -1,0 +1,16 @@
+docker-compose-prod.yml
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+.git
+.github
+.gitignore
+
+public
+pyazo_api/.env
+pyazo_api/*.db
+__pycache__
+
+.vscode
+.editorconfig
