@@ -3,17 +3,19 @@ version: '3'
 services:
   db:
     image: postgres:12-alpine
+    restart: unless-stopped
     env_file:
       - .env
     volumes:
     - db:/var/lib/postgresql/data
 
   api:
-    image: hub.theedgeofrage.com/pyazo/api
+    image: pyazo/api
+    restart: unless-stopped
     volumes:
       - public:/app/public
     ports:
-      - 127.0.0.1:8028:8000
+      - ::1:8000:8000
     env_file:
       - .env
 
