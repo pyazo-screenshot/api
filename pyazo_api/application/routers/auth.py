@@ -11,7 +11,7 @@ from pyazo_api.domain.auth.exceptions.auth import RegistrationBlocked
 router = APIRouter()
 
 
-@router.post('/login')
+@router.post('/login', tags=["auth"])
 async def login(
         form_data: UserCredentials,
         login_action: LoginAction = Depends(LoginAction),
@@ -19,7 +19,7 @@ async def login(
     return login_action(form_data)
 
 
-@router.post('/register')
+@router.post('/register', tags=["auth"])
 async def register(
         user_data: UserCredentials,
         register_action: RegisterAction = Depends(RegisterAction),
@@ -29,6 +29,6 @@ async def register(
     return register_action(user_data)
 
 
-@router.get('/me', response_model=UserGet)
+@router.get('/me', response_model=UserGet, tags=["auth"])
 async def get_authed_user(authed_user: User = Depends(get_current_user)):
     return UserGet(username=authed_user.username, id=authed_user.id)

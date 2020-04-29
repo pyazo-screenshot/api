@@ -8,8 +8,8 @@ from pyazo_api.util.auth import get_current_user_or_none
 router = APIRouter()
 
 
-@router.get('/{image_id}')
-async def static(
+@router.get('/{image_id}', tags=["images"])
+async def get_image(
         image_id: str,
         get_static_action: GetStaticAction = Depends(),
         authed_user: User = Depends(get_current_user_or_none),

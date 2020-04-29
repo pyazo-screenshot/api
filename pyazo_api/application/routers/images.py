@@ -17,7 +17,7 @@ from pyazo_api.util.auth import get_current_user
 router = APIRouter()
 
 
-@router.post('')
+@router.post('', tags=["images"])
 async def upload_image(
     upload_file: UploadFile = File(...),
     private: bool = False,
@@ -28,7 +28,7 @@ async def upload_image(
     return upload_action(upload_file, private, clear_metadata, UserGet(username=authed_user.username, id=authed_user.id))
 
 
-@router.delete('/{image_id}')
+@router.delete('/{image_id}', tags=["images"])
 async def delete_image(
     response: Response,
     image_id: str = Path(..., title="The ID of the image to delete"),
@@ -39,7 +39,7 @@ async def delete_image(
     response.status_code = status.HTTP_204_NO_CONTENT
 
 
-@router.get('')
+@router.get('', tags=["images"])
 async def get_images(
     pagination: Pagination = None,
     authed_user: User = Depends(get_current_user),
@@ -48,7 +48,7 @@ async def get_images(
     return get_image_action(UserGet(username=authed_user.username, id=authed_user.id), pagination)
 
 
-@router.post('/{image_id}/shares')
+@router.post('/{image_id}/shares', tags=["shares"])
 async def share_image(
     image_id: str,
     user: UserDTO,
@@ -58,7 +58,7 @@ async def share_image(
     return share_action(image_id, user, UserGet(username=authed_user.username, id=authed_user.id))
 
 
-@router.delete('/shares/{share_id}')
+@router.delete('/shares/{share_id}', tags=["shares"])
 async def delete_share(
     response: Response,
     share_id: str,
@@ -69,7 +69,7 @@ async def delete_share(
     response.status_code = status.HTTP_204_NO_CONTENT
 
 
-@router.get('/shares')
+@router.get('/shares', tags=["shares"])
 async def get_shares(
     pagination: Pagination = None,
     authed_user: User = Depends(get_current_user),
