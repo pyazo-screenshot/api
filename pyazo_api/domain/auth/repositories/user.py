@@ -11,6 +11,7 @@ from pyazo_api.util.db import get_db
 class UserRepository:
     def __init__(self, db: Session = Depends(get_db)):
         self.db = db
+        self.model = User
 
     def get_by_username(self, username: str) -> Optional[User]:
         return self.db.query(User).filter(User.username == username).first()

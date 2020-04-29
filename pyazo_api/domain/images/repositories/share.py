@@ -5,12 +5,15 @@ from sqlalchemy.orm import Session
 
 from pyazo_api.domain.images.dto.share import ShareAdd
 from pyazo_api.domain.images.models.share import Share
+from pyazo_api.domain.pagination.dto.pagination import Pagination
+from pyazo_api.domain.pagination.repositories.pagination import PaginationRepository
 from pyazo_api.util.db import get_db
 
 
-class ShareRepository:
+class ShareRepository(PaginationRepository):
     def __init__(self, db: Session = Depends(get_db)):
         self.db = db
+        self.model = Share
 
     def create_share(self, share: ShareAdd) -> Share:
         db_share = Share(
@@ -35,3 +38,7 @@ class ShareRepository:
 
     def get_all_shares_by_user_id(self, user_id: int) -> List[Share]:
         return self.db.query(Share).filter(Share.user_id == user_id).all()
+
+    def get_all_shares_by_user_id_paginated(self, user_id: int, pagination: Pagination) -> List[Share]:
+        filters = (Share.user_id == user_id, )
+        return self.get_all_paginated(filters, pagination)
