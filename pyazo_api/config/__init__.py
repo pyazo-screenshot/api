@@ -16,6 +16,7 @@ class DevConfig():
 	TESTING = True
 	LOGGING_LEVEL = 'DEBUG'
 	APP_URL = getenv('APP_URL', 'localhost')
+	BLOCK_REGISTER = getenv('BLOCK_REGISTER', False)
 
 
 class TestConfig():
@@ -25,6 +26,7 @@ class TestConfig():
 	TESTING = True
 	LOGGING_LEVEL = 'INFO'
 	APP_URL = getenv('APP_URL', 'pyazo-testing')
+	BLOCK_REGISTER = getenv('BLOCK_REGISTER', False)
 
 
 class ProdConfig():
@@ -34,6 +36,7 @@ class ProdConfig():
 	TESTING = False
 	LOGGING_LEVEL = 'WARNING'
 	APP_URL = getenv('APP_URL', None)
+	BLOCK_REGISTER = getenv('BLOCK_REGISTER', False)
 
 
 configs = {

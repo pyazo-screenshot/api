@@ -21,6 +21,7 @@ The only official supported way to run the server is through docker-compose. Fir
 | POSTGRES_PASSWORD| ' '                        | Password of the postgres user                                |
 | POSTGRES_DB      | pyazo                      | Database name                                                |
 | JWT_SECRET       | ' '                        | JWT secret                                                   |
+| BLOCK_REGISTER   | 'False'                    | Blocks registration if true                                  |
 
 Make a copy of the `docker-compose-prod.yml` file, name it `docker-compose.yml` and change the settings inside if needed.
 

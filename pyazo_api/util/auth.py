@@ -54,6 +54,7 @@ async def get_current_user(
 
     return user
 
+
 async def get_current_user_or_none(
         request: Request,
         user_repository: UserRepository = Depends(UserRepository)

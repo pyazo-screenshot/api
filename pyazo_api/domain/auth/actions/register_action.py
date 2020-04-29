@@ -4,7 +4,7 @@ from fastapi.params import Depends
 from pyazo_api.domain.auth.actions.login_action import LoginAction
 from pyazo_api.domain.auth.dto.user import UserCreate, UserCredentials
 from pyazo_api.domain.auth.repositories.user import UserRepository
-
+from pyazo_api.domain.auth.exceptions.auth import UsernameTaken
 
 class RegisterAction:
     def __init__(
@@ -23,7 +23,7 @@ class RegisterAction:
         user_create_data = UserCreate(**user_credentials)
         existing_user = self.user_repository.get_by_username(register_dto.username)
         if existing_user:
-            raise HTTPException(status_code=400, detail='Username already registered')
+            raise UsernameTaken()
 
         self.user_repository.create_user(user_create_data)
 
