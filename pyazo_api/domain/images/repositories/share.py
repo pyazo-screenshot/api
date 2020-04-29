@@ -13,7 +13,6 @@ from pyazo_api.util.db import get_db
 class ShareRepository(PaginationRepository):
     def __init__(self, db: Session = Depends(get_db)):
         self.db = db
-        self.model = Share
 
     def create_share(self, share: ShareAdd) -> Share:
         db_share = Share(

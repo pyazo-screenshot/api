@@ -12,7 +12,6 @@ from pyazo_api.util.db import get_db
 class ImageRepository(PaginationRepository):
     def __init__(self, db: Session = Depends(get_db)):
         self.db = db
-        self.model = Image
 
     def delete(self, image: Image):
         self.db.delete(image)
@@ -22,11 +21,7 @@ class ImageRepository(PaginationRepository):
         return self.db.query(Image).filter(Image.id == image_id).first()
 
     def get_all_by_user_id(self, user_id: int) -> List[Image]:
-        return self.db.query(Image).filter(Image.owner_id == user_id).all()
-
-    def get_all_by_user_id_paginated(self, user_id: int, pagination: Pagination) -> List[Image]:
-        filters = (Image.owner_id == user_id, )
-        return self.get_all_paginated(filters, pagination)
+        return self.db.query(Image).filter(Image.owner_id == user_id)
 
     def create_image(self, image: ImageUpload) -> Image:
         db_image = Image(

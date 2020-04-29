@@ -10,8 +10,10 @@ class PaginationRepository:
     def __init__(self, db: Session = Depends(get_db)):
         self.db = db
 
-    def get_all_paginated(self, filters: (BinaryExpression), pagination: Pagination):
-        objects = self.db.query(self.model)
-        for filter in filters:
-            objects = objects.filter(filter)
-        return objects.limit(pagination.objects_per_page + 1).offset(pagination.page_number * pagination.objects_per_page).all()
+    def paginate(self, objects, pagination: Pagination):
+        next_page = False
+        objects = objects.limit(pagination.objects_per_page + 1).offset(pagination.page_number * pagination.objects_per_page)
+        if objects.count() > pagination.objects_per_page:
+            objects = objects[:-1]
+            next_page = True
+        return objects, next_page

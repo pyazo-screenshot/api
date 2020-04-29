@@ -7,5 +7,5 @@ class ImageUpload(BaseModel):
     private: bool
 
 
-class ImageGet(ImageUpload):
+class ImageGet(BaseModel):
     id: str

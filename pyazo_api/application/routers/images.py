@@ -8,9 +8,8 @@ from pyazo_api.domain.images.actions.delete_image import DeleteImageAction
 from pyazo_api.domain.images.actions.delete_share import DeleteShareAction
 from pyazo_api.domain.images.actions.save_image import SaveImageAction
 from pyazo_api.domain.images.actions.share_image import ShareImageAction
-from pyazo_api.domain.images.dto.image import ImageGet
-from pyazo_api.domain.images.repositories.image import ImageRepository
-from pyazo_api.domain.images.repositories.share import ShareRepository
+from pyazo_api.domain.images.actions.get_images import GetImagesAction
+from pyazo_api.domain.images.actions.get_shares import GetSharesAction
 from pyazo_api.domain.pagination.dto.pagination import Pagination
 from pyazo_api.util.auth import get_current_user
 
@@ -44,26 +43,9 @@ async def delete_image(
 async def get_images(
     pagination: Pagination = None,
     authed_user: User = Depends(get_current_user),
-    image_repository: ImageRepository = Depends()
+    get_image_action: GetImagesAction = Depends()
 ):
-    next_page = False
-    if pagination is None:
-        images = image_repository.get_all_by_user_id(authed_user.id)
-    else:
-        images = image_repository.get_all_by_user_id_paginated(authed_user.id, pagination)
-        if len(images) > pagination.objects_per_page:
-            images = images[:-1]
-            next_page = True
-    return {
-        'images': [
-            ImageGet(
-                id=image.id,
-                owner_id=image.owner_id,
-                private=image.private
-            ) for image in images
-        ],
-        'next_page': next_page,
-    }
+    return get_image_action(UserGet(username=authed_user.username, id=authed_user.id), pagination)
 
 
 @router.post('/{image_id}/shares')
@@ -91,24 +73,6 @@ async def delete_share(
 async def get_shares(
     pagination: Pagination = None,
     authed_user: User = Depends(get_current_user),
-    share_repository: ShareRepository = Depends()
+    get_shares_action: GetSharesAction = Depends()
 ):
-    next_page = False
-    if pagination is None:
-        shares = share_repository.get_all_shares_by_user_id(authed_user.id)
-    else:
-        shares = share_repository.get_all_shares_by_user_id_paginated(authed_user.id, pagination)
-        if len(shares) > pagination.objects_per_page:
-            shares = shares[:-1]
-            next_page = True
-    return {
-        'images': [
-            ImageGet(
-                id=share.image.id,
-                owner_id=share.image.owner_id,
-                private=share.image.private
-            )
-            for share in shares
-        ],
-        'next_page': next_page,
-    }
+    return get_shares_action(UserGet(username=authed_user.username, id=authed_user.id), pagination)
