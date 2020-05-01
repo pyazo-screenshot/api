@@ -15,6 +15,12 @@ def init_routers(app: FastAPI):
         prefix='/images'
     )
 
+    from .routers import shares
+    app.include_router(
+        shares.router,
+        prefix='/shares'
+    )
+
     from .routers import static
     app.include_router(
         static.router,

@@ -39,7 +39,9 @@ async def get_user(
         token_data = TokenData(username=username)
     except PyJWTError:
         return None
-    user = user_repository.get_by_username(username=token_data.username)
+    user = user_repository.query() \
+        .filter_by('username', username) \
+        .first()
 
     return user
 

@@ -17,7 +17,7 @@ class User(UserBase):
 
 
 class UserCreate(UserBase):
-    password: str
+    hashed_password: str
 
 
 class UserGet(User):

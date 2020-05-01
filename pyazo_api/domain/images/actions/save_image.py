@@ -7,9 +7,9 @@ from fastapi import UploadFile
 from fastapi.params import Depends
 
 from pyazo_api.domain.auth.dto.user import UserGet
-from pyazo_api.domain.images.exceptions.image import FileTypeException
 from pyazo_api.domain.images.dto.image import ImageUpload
 from pyazo_api.domain.images.repositories.image import ImageRepository
+from pyazo_api.util.http_exceptions import FileTypeException
 
 
 class SaveImageAction:
@@ -38,7 +38,7 @@ class SaveImageAction:
         if clear_metadata:
             subprocess.run(('exiftool', '-overwrite_original_in_place', '-all=', destination), stdout=subprocess.PIPE)
 
-        return self.image_repository.create_image(
+        return self.image_repository.create(
             ImageUpload(
                 id=file_name,
                 owner_id=uploader.id,
