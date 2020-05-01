@@ -38,7 +38,6 @@ async def get_shares(
     authed_user: User = Depends(get_current_user),
     get_shares_action: GetSharesAction = Depends()
 ):
-    # TODO      N + 1 Problem
     return ShareGet.paginated_collection(
         get_shares_action(UserGet(username=authed_user.username, id=authed_user.id), pagination)
     )

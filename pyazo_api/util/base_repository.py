@@ -26,7 +26,7 @@ class BaseRepository:
 
     def load(self, query_builder: Query, relations: List[str]) -> Query:
         return query_builder.options(
-            [orm.joinedload(relation) for relation in relations]
+            [orm.joinedload_all(relation) for relation in relations]
         )
 
     def filter(self, query_builder: Query, condition) -> Query:
