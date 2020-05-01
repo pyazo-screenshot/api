@@ -89,3 +89,6 @@ venv.bak/
 
 # Databases
 *.db
+
+# mypy cache
+.mypy_cache/
