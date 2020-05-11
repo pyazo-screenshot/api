@@ -6,7 +6,7 @@ from pyazo_api.domain.auth.models.user import User
 from pyazo_api.domain.images.actions.delete_image import DeleteImageAction
 from pyazo_api.domain.images.actions.save_image import SaveImageAction
 from pyazo_api.domain.images.actions.get_images import GetImagesAction
-from pyazo_api.domain.images.dto.image import ImageUpload
+from pyazo_api.domain.images.dto.image import ImageBaseResource
 from pyazo_api.util.pagination import Pagination, extract_pagination
 from pyazo_api.util.auth import get_current_user
 
@@ -46,6 +46,6 @@ async def get_images(
     authed_user: User = Depends(get_current_user),
     get_images_action: GetImagesAction = Depends()
 ):
-    return ImageUpload.paginated_collection(
+    return ImageBaseResource.paginated_collection(
         get_images_action(UserGet(username=authed_user.username, id=authed_user.id), pagination)
     )

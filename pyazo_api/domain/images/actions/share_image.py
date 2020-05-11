@@ -2,7 +2,7 @@ from fastapi.params import Depends
 
 from pyazo_api.domain.images.repositories.image import ImageRepository
 from pyazo_api.domain.images.repositories.share import ShareRepository
-from pyazo_api.domain.images.dto.share import ShareAdd
+from pyazo_api.domain.images.dto.share import CreateShareFormSchema
 from pyazo_api.domain.auth.exceptions.auth import UserNotFoundException
 from pyazo_api.domain.auth.repositories.user import UserRepository
 from pyazo_api.domain.auth.dto.user import UserGet
@@ -20,7 +20,7 @@ class ShareImageAction:
         self.user_repository = user_repository
         self.share_repository = share_repository
 
-    def __call__(self, share_data: ShareAdd, user: UserGet):
+    def __call__(self, share_data: CreateShareFormSchema, user: UserGet):
         image = self.image_repository \
             .query() \
             .filter_by('id', share_data.image_id) \

@@ -22,7 +22,7 @@ class GetStaticAction:
     def __call__(self, image_id: str, current_user: Optional[UserGet]):
         image = self.image_repository \
             .query() \
-            .filter_by('image_id', image_id) \
+            .filter_by('id', image_id) \
             .first()
         if not image:
             raise NotFoundException

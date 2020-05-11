@@ -34,7 +34,7 @@ class UserInDB(User):
         orm_mode = True
 
 
-class Token(BaseModel):
+class TokenResource(BaseModel):
     access_token: str
     token_type: str
 
