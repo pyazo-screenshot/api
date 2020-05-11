@@ -1,8 +1,8 @@
 from fastapi.params import Depends
 
-from pyazo_api.domain.images.exceptions.share import ShareNotFoundException, DeleteShareForbiddenException
 from pyazo_api.domain.images.repositories.share import ShareRepository
 from pyazo_api.domain.auth.dto.user import UserGet
+from pyazo_api.util.http_exceptions import NotFoundException, ForbiddenException
 
 
 class DeleteShareAction:
@@ -12,9 +12,9 @@ class DeleteShareAction:
     def __call__(self, share_id: int, current_user: UserGet):
         share = self.share_repository.find_by_id(share_id)
         if not share:
-            raise ShareNotFoundException
+            raise NotFoundException
 
         if not share.image.owner.id == current_user.id:
-            raise DeleteShareForbiddenException
+            raise ForbiddenException
 
         self.share_repository.delete(share)

@@ -17,7 +17,7 @@ class User(UserBase):
 
 
 class UserCreate(UserBase):
-    password: str
+    hashed_password: str
 
 
 class UserGet(User):
@@ -34,7 +34,7 @@ class UserInDB(User):
         orm_mode = True
 
 
-class Token(BaseModel):
+class TokenResource(BaseModel):
     access_token: str
     token_type: str
 
