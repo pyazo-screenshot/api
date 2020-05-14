@@ -34,6 +34,9 @@ class QueryBuilder:
     def load(self, relations: List[str]) -> 'QueryBuilder':
         pass
 
+    def sort(self, field: str) -> 'QueryBuilder':
+        pass
+
     def paginate(self, pagination: Pagination) -> 'QueryBuilder':
         pass
 

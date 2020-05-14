@@ -63,6 +63,13 @@ class BaseRepository:
 
         return PaginatedResults(results=objects, next_page=next_page, count=count)
 
+    def sort(self, query_builder: Query, field: str, order: str = 'asc') -> QueryBuilder:
+        order_by = getattr(self.model, field)
+        if order == 'desc':
+            order_by = order_by.desc()
+
+        return query_builder.order_by(order_by)
+
     def create(self, data: BaseModel) -> Base:
         db_entity = self.model(**data.dict())
         self.db.add(db_entity)

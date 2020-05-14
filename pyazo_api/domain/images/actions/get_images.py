@@ -17,4 +17,5 @@ class GetImagesAction:
         return self.image_repository \
             .query() \
             .filter(Image.owner_id == owner.id) \
+            .sort(field='created_at', order='desc') \
             .paginate(pagination)
