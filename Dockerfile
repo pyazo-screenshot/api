@@ -21,7 +21,7 @@ FROM python:3.8-alpine
 
 EXPOSE 8000
 WORKDIR /app
-CMD ["sh", "pyazo_api/entrypoint.sh"]
+ENTRYPOINT ["pyazo_api/entrypoint.sh"]
 ENV PATH="/app/.venv/bin:$PATH" \
   PYTHONUNBUFFERED=1
 
