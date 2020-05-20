@@ -21,9 +21,9 @@ def init_routers(app: FastAPI):
         prefix='/shares'
     )
 
-    from .routers import static
+    from .routers import private_static
     app.include_router(
-        static.router,
+        private_static.router,
         prefix=''
     )
 

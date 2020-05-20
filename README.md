@@ -22,6 +22,9 @@ The only official supported way to run the server is through docker-compose. Fir
 | POSTGRES_DB      | pyazo                      | Database name                                                |
 | JWT_SECRET       | ' '                        | JWT secret                                                   |
 | BLOCK_REGISTER   | 'False'                    | Blocks registration if true                                  |
+| HOST_PUBLIC_MEDIA| /srv/http/pyazo            | Nginx public media path                                      |
+| PUBLIC_PATH      | ./media/public/            | Public media storage path                                    |
+| PRIVATE_PATH     | ./media/private/           | Private media storage path                                   |
 
 Make a copy of the `docker-compose-prod.yml` file, name it `docker-compose.yml` and change the settings inside if needed.
 
