@@ -13,7 +13,8 @@ services:
     image: pyazo/api
     restart: unless-stopped
     volumes:
-      - public:/app/public
+      - ${HOST_PUBLIC_MEDIA}:/app/media/public
+      - private:/app/media/private
     ports:
       - ::1:8000:8000
     env_file:
@@ -21,4 +22,4 @@ services:
 
 volumes:
   db:
-  public:
+  private:

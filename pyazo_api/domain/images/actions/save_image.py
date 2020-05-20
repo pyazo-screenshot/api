@@ -6,6 +6,7 @@ from pathlib import Path
 from fastapi import UploadFile
 from fastapi.params import Depends
 
+from pyazo_api.config import config
 from pyazo_api.domain.auth.dto.user import UserGet
 from pyazo_api.domain.images.dto.image import ImageBaseResource
 from pyazo_api.domain.images.repositories.image import ImageRepository
@@ -31,7 +32,11 @@ class SaveImageAction:
             raise FileTypeException
 
         file_name = f'{random_string}.{extension}'
-        relative_file_path = f'./public/images/{file_name}'
+        if private:
+            relative_file_path = f'{config.PRIVATE_PATH}{file_name}'
+        else:
+            relative_file_path = f'{config.PUBLIC_PATH}{file_name}'
+
         destination = Path(relative_file_path).relative_to(Path('./'))
         self.save_upload_file(upload_file, destination)
 

@@ -25,6 +25,6 @@ ENTRYPOINT ["pyazo_api/entrypoint.sh"]
 ENV PATH="/app/.venv/bin:$PATH" \
   PYTHONUNBUFFERED=1
 
-RUN apk add --no-cache libc-dev binutils exiftool libpq && mkdir -p public/images
+RUN apk add --no-cache libc-dev binutils exiftool libpq && mkdir -p media/private media/public
 
 COPY --from=builder /app/ ./

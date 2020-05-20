@@ -92,3 +92,6 @@ venv.bak/
 
 # mypy cache
 .mypy_cache/
+
+#images
+/media
