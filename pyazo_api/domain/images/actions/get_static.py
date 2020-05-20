@@ -1,7 +1,9 @@
 from typing import Optional
+from pathlib import Path
 
 from fastapi.params import Depends
 
+from pyazo_api.config import config
 from pyazo_api.domain.images.repositories.image import ImageRepository
 from pyazo_api.domain.images.repositories.share import ShareRepository
 from pyazo_api.domain.auth.dto.user import UserGet
@@ -40,4 +42,8 @@ class GetStaticAction:
                 if not share:
                     raise NotFoundException
 
-        return FileResponse(f"public/images/{image_id}", media_type="image/png")
+            path = Path(f'{config.PRIVATE_PATH}{image.id}')
+        else:
+            path = Path(f'{config.PUBLIC_PATH}{image.id}')
+
+        return FileResponse(path, media_type="image/png")

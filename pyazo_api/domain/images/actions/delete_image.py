@@ -1,6 +1,7 @@
 from pathlib import Path
 from fastapi.params import Depends
 
+from pyazo_api.config import config
 from pyazo_api.domain.images.repositories.image import ImageRepository
 from pyazo_api.domain.auth.dto.user import UserGet
 from pyazo_api.util.http_exceptions import NotFoundException, ForbiddenException
@@ -21,6 +22,10 @@ class DeleteImageAction:
         if not image.owner.id == current_user.id:
             raise ForbiddenException
 
-        path = Path(f'./public/images/{image.id}')
+        if image.private:
+            path = Path(f'{config.PRIVATE_PATH}{image.id}')
+        else:
+            path = Path(f'{config.PUBLIC_PATH}{image.id}')
+
         path.unlink(missing_ok=True)
         self.image_repository.delete(image)
