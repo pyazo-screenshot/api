@@ -40,6 +40,10 @@ Then run it using:
 docker-compose up -d
 ```
 
+Place a copy of the nginx.conf-example to /etc/nginx/conf.d/pyazo.conf and change the settings inside if needed.
+
+Restart nginx.
+
 ## Documentation
 https://pyazo.com/docs
 
