@@ -5,6 +5,7 @@ from pyazo_api.domain.auth.dto.user import UserGet
 from pyazo_api.domain.auth.models.user import User
 from pyazo_api.domain.images.actions.delete_image import DeleteImageAction
 from pyazo_api.domain.images.actions.save_image import SaveImageAction
+from pyazo_api.domain.images.actions.create_thumbnail import CreateThumbnailAction
 from pyazo_api.domain.images.actions.get_images import GetImagesAction
 from pyazo_api.domain.images.dto.image import ImageBaseResource
 from pyazo_api.util.pagination import Pagination, extract_pagination
@@ -19,7 +20,7 @@ async def upload_image(
     private: bool = False,
     clear_metadata: bool = False,
     upload_action: SaveImageAction = Depends(),
-    authed_user: User = Depends(get_current_user)
+    authed_user: User = Depends(get_current_user),
 ):
     return upload_action(
         upload_file,
