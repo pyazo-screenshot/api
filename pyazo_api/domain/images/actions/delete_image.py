@@ -1,3 +1,5 @@
+import os
+
 from pathlib import Path
 from fastapi.params import Depends
 
@@ -23,9 +25,9 @@ class DeleteImageAction:
             raise ForbiddenException
 
         if image.private:
-            path = Path(f'{config.PRIVATE_PATH}{image.id}')
+            path = Path(os.path.join(config.PRIVATE_PATH, image.id))
         else:
-            path = Path(f'{config.PUBLIC_PATH}{image.id}')
+            path = Path(os.path.join(config.PUBLIC_PATH, image.id))
 
         path.unlink(missing_ok=True)
         self.image_repository.delete(image)

@@ -1,3 +1,5 @@
+import os
+
 from typing import Optional
 from pathlib import Path
 
@@ -41,6 +43,6 @@ class GetPrivateStaticAction:
             if not share:
                 raise NotFoundException
 
-        path = Path(f'{config.PRIVATE_PATH}{image.id}')
+        path = Path(os.path.join(config.PRIVATE_PATH, image.id))
 
         return FileResponse(path, media_type="image/png")

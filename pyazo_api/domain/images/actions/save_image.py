@@ -1,6 +1,7 @@
 import shutil
 import subprocess
 import uuid
+import os
 from pathlib import Path
 
 from fastapi import UploadFile
@@ -33,11 +34,11 @@ class SaveImageAction:
 
         file_name = f'{random_string}.{extension}'
         if private:
-            relative_file_path = f'{config.PRIVATE_PATH}{file_name}'
+            relative_file_path = os.path.join(config.PRIVATE_PATH, file_name)
         else:
-            relative_file_path = f'{config.PUBLIC_PATH}{file_name}'
+            relative_file_path = os.path.join(config.PUBLIC_PATH, file_name)
 
-        destination = Path(relative_file_path).relative_to(Path('./'))
+        destination = Path(relative_file_path)
         self.save_upload_file(upload_file, destination)
 
         if clear_metadata:
