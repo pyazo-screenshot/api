@@ -59,7 +59,7 @@ class SaveImageAction:
         if clear_metadata:
             subprocess.run(('exiftool', '-overwrite_original_in_place', '-all=', destination), stdout=subprocess.PIPE)
 
-        self.async_dispatcher(self.create_thumbnail, destination)
+        self.async_dispatcher(self.create_thumbnail, destination, 128)
 
         return self.image_repository.create(
             ImageBaseResource(

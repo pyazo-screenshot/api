@@ -6,10 +6,10 @@ log = logging.getLogger(__name__)
 
 
 class CreateThumbnailAction:
-    def __call__(self, filepath: str):
+    def __call__(self, filepath: str, thumbnail_size: int):
         try:
             im = Image.open(filepath)
-            im.thumbnail((128, 128), Image.ANTIALIAS)
-            im.save('asdf', "WEBP")
+            im.thumbnail((thumbnail_size, thumbnail_size), Image.ANTIALIAS)
+            im.save('asdf.webp', "WEBP")
         except IOError as e:
             log.error(e)
