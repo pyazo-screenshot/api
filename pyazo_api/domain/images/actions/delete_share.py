@@ -10,7 +10,10 @@ class DeleteShareAction:
         self.share_repository = share_repository
 
     def __call__(self, share_id: int, current_user: UserGet):
-        share = self.share_repository.find_by_id(share_id)
+        share = self.share_repository \
+            .query() \
+            .filter_by('id', share_id) \
+            .first()
         if not share:
             raise NotFoundException
 

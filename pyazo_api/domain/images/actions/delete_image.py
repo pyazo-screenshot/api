@@ -10,7 +10,7 @@ from pyazo_api.util.http_exceptions import NotFoundException, ForbiddenException
 
 
 class DeleteImageAction:
-    def __init__(self, image_repository: ImageRepository = Depends(ImageRepository)):
+    def __init__(self, image_repository: ImageRepository = Depends()):
         self.image_repository = image_repository
 
     def __call__(self, image_id: str, current_user: UserGet):

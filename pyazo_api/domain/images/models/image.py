@@ -14,4 +14,4 @@ class Image(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     owner = relationship('User', back_populates='images')
-    shares = relationship('Share', back_populates='image')
+    shares = relationship('Share', back_populates='image', cascade="all,delete")
