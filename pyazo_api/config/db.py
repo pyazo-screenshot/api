@@ -20,8 +20,9 @@ class DevConfig(BaseConfig):
 
 
 class TestConfig(BaseConfig):
+    DB_NAME = getenv('POSTGRES_DB', 'pyazo_test')
     LOG_LEVEL = getenv('DB_LOG_LEVEL', logging.WARN)
-    _DB_HOST = getenv('POSTGRES_HOST', 'db')
+    _DB_HOST = getenv('POSTGRES_HOST', 'localhost')
     _DEFAULT_URI = f'postgresql://{BaseConfig.DB_USER}:{BaseConfig.DB_PASS}@{_DB_HOST}/{BaseConfig.DB_NAME}'
     SQLALCHEMY_DATABASE_URI = getenv('SQLALCHEMY_DATABASE_URI', _DEFAULT_URI)
 

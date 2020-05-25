@@ -7,6 +7,7 @@ from pyazo_api.config import config
 SQLALCHEMY_DATABASE_URL = config.db.SQLALCHEMY_DATABASE_URI
 LOG_LEVEL = config.db.LOG_LEVEL
 
+
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     pool_size=20,
