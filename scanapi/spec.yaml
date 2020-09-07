@@ -1,0 +1,39 @@
+endpoints:
+  - name: pyazo api
+    path: http://pyazo.localhost
+    requests:
+      - name: login
+        path: auth/login
+        method: post
+        body:
+          username: jelena
+          password: mikimaus
+        vars:
+          access_token:  ${{response.json()["access_token"]}}
+        tests:
+          - name: status_code_is_200
+            assert: ${{ response.status_code == 200 }}
+          - name: response_time_is_under_a_second
+            assert: ${{ response.elapsed.total_seconds() < 1 }}
+      - name: get images
+        path: images
+        method: get
+        headers:
+          Authorization: Bearer ${access_token}
+        vars:
+          image_id:  ${{response.json()["results"][1]["id"]}}
+        tests:
+          - name: status_code_is_200
+            assert: ${{ response.status_code == 200 }}
+          - name: response_time_is_under_a_second
+            assert: ${{ response.elapsed.total_seconds() < 1 }}
+      - name: get image
+        path: ${image_id}
+        method: get
+        headers:
+          Authorization: Bearer ${access_token}
+        tests:
+          - name: status_code_is_200
+            assert: ${{ response.status_code == 200 }}
+          - name: response_time_is_under_a_second
+            assert: ${{ response.elapsed.total_seconds() < 1 }}
