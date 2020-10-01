@@ -12,6 +12,7 @@ from os import getenv
 class DevConfig():
     from .jwt import DevConfig as jwt
     from .db import DevConfig as db
+    ENV = 'development'
     DEBUG = True
     TESTING = True
     LOGGING_LEVEL = 'DEBUG'
@@ -24,6 +25,7 @@ class DevConfig():
 class TestConfig():
     from .jwt import TestConfig as jwt
     from .db import TestConfig as db
+    ENV = 'testing'
     DEBUG = True
     TESTING = True
     LOGGING_LEVEL = 'INFO'
@@ -36,6 +38,7 @@ class TestConfig():
 class ProdConfig():
     from .jwt import ProdConfig as jwt
     from .db import ProdConfig as db
+    ENV = 'production'
     DEBUG = False
     TESTING = False
     LOGGING_LEVEL = 'WARNING'

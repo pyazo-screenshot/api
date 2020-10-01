@@ -15,7 +15,7 @@ config = context.config
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from pyazo_api.application import Base  # noqa: E402
+from pyazo_api.application.db import Base  # noqa: E402
 
 target_metadata = Base.metadata
 
