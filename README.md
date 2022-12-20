@@ -8,7 +8,7 @@ It is comprised of a cross-platform client written in Python which defers the ac
 
 ### Server
 
-* Python >= 3.7 (check with `python --version`)
+* Python >= 3.10 (check with `python --version`)
 
 ## Installation
 
@@ -54,4 +54,3 @@ BSD 3-Clause
 [Python]: <https://www.python.org/downloads/>
 [Docker]: <https://docs.docker.com/>
 [Docker Compose]: <https://docs.docker.com/compose/>
-

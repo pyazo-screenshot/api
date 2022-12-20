@@ -3,30 +3,29 @@ from fastapi import APIRouter, Depends
 from pyazo_api.config import config
 from pyazo_api.domain.auth.actions.login_action import LoginAction
 from pyazo_api.domain.auth.actions.register_action import RegisterAction
-from pyazo_api.domain.auth.dto.user import UserGet, UserCredentials
-from pyazo_api.domain.auth.models.user import User
+from pyazo_api.domain.auth.dto import User, UserGet, UserCredentials
 from pyazo_api.util.auth import get_current_user
-from pyazo_api.domain.auth.exceptions.auth import RegistrationBlocked
+from pyazo_api.domain.auth.exceptions import RegistrationBlocked
 
 router = APIRouter()
 
 
 @router.post('/login', tags=["auth"])
 async def login(
-        form_data: UserCredentials,
-        login_action: LoginAction = Depends(LoginAction),
+    form_data: UserCredentials,
+    login_action: LoginAction = Depends(LoginAction),
 ):
-    return login_action(form_data)
+    return await login_action(form_data)
 
 
 @router.post('/register', tags=["auth"])
 async def register(
-        user_data: UserCredentials,
-        register_action: RegisterAction = Depends(RegisterAction),
+    user_data: UserCredentials,
+    register_action: RegisterAction = Depends(RegisterAction),
 ):
     if config.BLOCK_REGISTER == 'True':
         raise RegistrationBlocked
-    return register_action(user_data)
+    return await register_action(user_data)
 
 
 @router.get('/me', response_model=UserGet, tags=["auth"])

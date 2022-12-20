@@ -1,9 +1,8 @@
-from fastapi.params import Depends
+from fastapi import Depends
 
-from pyazo_api.domain.auth.dto.user import UserGet
-from pyazo_api.domain.images.models.image import Image
-from pyazo_api.domain.images.repositories.image import ImageRepository
-from pyazo_api.util.pagination import Pagination
+from pyazo_api.domain.auth.dto import UserGet
+from pyazo_api.domain.images.repository import ImageRepository
+from pyazo_api.util.pagination import PaginationRequest, PaginatedResults
 
 
 class GetImagesAction:
@@ -13,9 +12,5 @@ class GetImagesAction:
     ):
         self.image_repository = image_repository
 
-    def __call__(self, owner: UserGet, pagination: Pagination):
-        return self.image_repository \
-            .query() \
-            .filter(Image.owner_id == owner.id) \
-            .sort(field='created_at', order='desc') \
-            .paginate(pagination)
+    async def __call__(self, owner: UserGet, pagination: PaginationRequest) -> PaginatedResults:
+        return await self.image_repository.get_paginated_images_by_owner_id(owner.id, pagination)

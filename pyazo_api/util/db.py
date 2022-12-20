@@ -1,9 +1,5 @@
-from pyazo_api.application.db import SessionLocal
+from pyazo_api.application.db import Database, db
 
 
-def get_db():
-    try:
-        db = SessionLocal()
-        yield db
-    finally:
-        db.close()
+def get_db() -> Database:
+    return db

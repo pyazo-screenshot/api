@@ -1,8 +1,10 @@
+from psycopg.errors import Error
 from fastapi import FastAPI
-from .db import Base, engine  # noqa: F401
+
+from .db import db
 
 
-def init_routers(app: FastAPI):
+def init_routers(app: FastAPI) -> None:
     from .routers import auth
     app.include_router(
         auth.router,
@@ -15,12 +17,6 @@ def init_routers(app: FastAPI):
         prefix='/images'
     )
 
-    from .routers import shares
-    app.include_router(
-        shares.router,
-        prefix='/shares'
-    )
-
     from .routers import private_static
     app.include_router(
         private_static.router,
@@ -28,7 +24,7 @@ def init_routers(app: FastAPI):
     )
 
 
-def init_middlewares(app: FastAPI):
+def init_middlewares(app: FastAPI) -> None:
     from fastapi.middleware.cors import CORSMiddleware
 
     origins = ['*']
@@ -43,7 +39,12 @@ def init_middlewares(app: FastAPI):
 
 
 def create_app() -> FastAPI:
-    app = FastAPI()
+    app = FastAPI(
+        on_shutdown=[db.close],
+        exception_handlers={
+            Error: db.exception_handler,
+        }
+    )
     init_routers(app)
     init_middlewares(app)
 

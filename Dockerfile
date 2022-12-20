@@ -1,4 +1,4 @@
-FROM python:3.8 AS builder
+FROM python:3.10 AS builder
 
 WORKDIR /app
 ENV PATH="/root/.poetry/bin:$PATH"
@@ -16,7 +16,7 @@ RUN set -x \
   && rm -rf pyazo_api.egg-info
 
 
-FROM python:3.8-slim
+FROM python:3.10-slim
 
 EXPOSE 8000
 WORKDIR /app
