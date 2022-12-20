@@ -1,14 +1,10 @@
 import pytest
-from sqlalchemy_utils import create_database, database_exists, drop_database
 from fastapi.testclient import TestClient
 from PIL import Image as PILImage
 
 from pyazo_api.run import app
-from pyazo_api.application.db import Base, engine  # noqa: F401
-from pyazo_api.migrate import run_migration
 from pyazo_api.seed import seed
-from pyazo_api.domain.images.repositories.image import ImageRepository
-from pyazo_api.domain.images.repositories.share import ShareRepository
+from pyazo_api.domain.images.repository import ImageRepository
 
 client = TestClient(app)
 
@@ -64,14 +60,5 @@ def last_image():
     def get_last():
         image_repository = ImageRepository()
         return image_repository.query().sort('created_at', order='desc').first()
-
-    return get_last
-
-
-@pytest.fixture
-def last_share():
-    def get_last():
-        share_repository = ShareRepository()
-        return share_repository.query().sort('id', order='desc').first()
 
     return get_last

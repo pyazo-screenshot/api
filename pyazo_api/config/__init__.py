@@ -1,15 +1,24 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim:fenc=utf-8
-#
-# Copyright © 2020 <pavle.portic@tilda.center>
-#
-# Distributed under terms of the BSD 3-Clause license.
-
 from os import getenv
+from typing import cast
+
+from pyazo_api.config.db import DBConfig
+from pyazo_api.config.jwt import JWTConfig
 
 
-class DevConfig():
+class Config:
+    db: DBConfig
+    jwt: JWTConfig
+    ENV: str
+    DEBUG: bool
+    TESTING: bool
+    LOGGING_LEVEL: str
+    APP_URL: str
+    BLOCK_REGISTER: bool
+    PUBLIC_PATH: str
+    PRIVATE_PATH: str
+
+
+class DevConfig(Config):
     from .jwt import DevConfig as jwt
     from .db import DevConfig as db
     ENV = 'development'
@@ -17,7 +26,7 @@ class DevConfig():
     TESTING = True
     LOGGING_LEVEL = 'DEBUG'
     APP_URL = getenv('APP_URL', 'localhost')
-    BLOCK_REGISTER = getenv('BLOCK_REGISTER', False)
+    BLOCK_REGISTER = bool(getenv('BLOCK_REGISTER', False))
     PUBLIC_PATH = getenv('PUBLIC_PATH', './media/public/')
     PRIVATE_PATH = getenv('PRIVATE_PATH', './media/private/')
 
@@ -30,7 +39,7 @@ class TestConfig():
     TESTING = True
     LOGGING_LEVEL = 'INFO'
     APP_URL = getenv('APP_URL', 'pyazo-testing')
-    BLOCK_REGISTER = getenv('BLOCK_REGISTER', False)
+    BLOCK_REGISTER = bool(getenv('BLOCK_REGISTER', False))
     PUBLIC_PATH = getenv('PUBLIC_PATH', './media/public/')
     PRIVATE_PATH = getenv('PRIVATE_PATH', './media/private/')
 
@@ -43,7 +52,7 @@ class ProdConfig():
     TESTING = False
     LOGGING_LEVEL = 'WARNING'
     APP_URL = getenv('APP_URL', None)
-    BLOCK_REGISTER = getenv('BLOCK_REGISTER', False)
+    BLOCK_REGISTER = bool(getenv('BLOCK_REGISTER', False))
     PUBLIC_PATH = getenv('PUBLIC_PATH', './media/public/')
     PRIVATE_PATH = getenv('PRIVATE_PATH', './media/private/')
 
@@ -55,4 +64,4 @@ configs = {
 }
 
 environment = getenv('ENV', 'production')
-config = configs.get(environment, ProdConfig)
+config = cast(Config, configs.get(environment, ProdConfig))

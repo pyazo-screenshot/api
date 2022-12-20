@@ -1,55 +1,57 @@
 from datetime import timedelta, datetime
+from typing import Any, Optional
 
 import jwt
-from fastapi import Request
+from fastapi import Depends, Request
 from fastapi.exceptions import HTTPException
-from fastapi.params import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jwt import PyJWTError
 
 from pyazo_api.config import config
-from pyazo_api.domain.auth.dto.user import TokenData
-from pyazo_api.domain.auth.repositories.user import UserRepository
-from pyazo_api.domain.auth.exceptions.auth import InvalidJWT
+from pyazo_api.domain.auth.dto import TokenData, User
+from pyazo_api.domain.auth.repository import UserRepository
+from pyazo_api.domain.auth.exceptions import InvalidJWT
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/login')
 
 
-def create_access_token(*, data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
-    if expires_delta:
+def create_access_token(*, data: dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
+    if expires_delta is not None:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(days=7300)
-    to_encode.update({'exp': expire})
-    encoded_jwt = jwt.encode(to_encode, config.jwt.SECRET, algorithm=config.jwt.ALGORITHM)
+    encoded_jwt = jwt.encode(
+        {
+            **data,
+            'exp': expire,
+        },
+        config.jwt.SECRET,
+        algorithm=config.jwt.ALGORITHM,
+    )
 
     return encoded_jwt
 
 
 async def get_user(
-        token: str,
-        user_repository: UserRepository
-):
+    token: str,
+    user_repository: UserRepository,
+) -> Optional[User]:
     try:
-        payload = jwt.decode(token, config.jwt.SECRET, algorithm=config.jwt.ALGORITHM)
-        username: str = payload.get('sub')
+        payload = jwt.decode(token, config.jwt.SECRET, algorithms=[config.jwt.ALGORITHM])
+        username: str = str(payload.get('sub'))
         if username is None:
             return None
         token_data = TokenData(username=username)
-    except PyJWTError:
+    except PyJWTError as e:
         return None
-    user = user_repository.query() \
-        .filter_by('username', username) \
-        .first()
 
-    return user
+    return await user_repository.get_by_username(username)
 
 
 async def get_current_user(
-        token: str = Depends(oauth2_scheme),
-        user_repository: UserRepository = Depends(UserRepository)
-):
+    token: str = Depends(oauth2_scheme),
+    user_repository: UserRepository = Depends(UserRepository)
+) -> User:
     user = await get_user(token, user_repository)
     if user is None:
         raise InvalidJWT()
@@ -58,12 +60,15 @@ async def get_current_user(
 
 
 async def get_current_user_or_none(
-        request: Request,
-        user_repository: UserRepository = Depends(UserRepository)
-):
+    request: Request,
+    user_repository: UserRepository = Depends(UserRepository)
+) -> Optional[User]:
     try:
-        token: str = await oauth2_scheme(request)
+        token: Optional[str] = await oauth2_scheme(request)
     except HTTPException:
+        return None
+
+    if token is None:
         return None
 
     return await get_user(token, user_repository)

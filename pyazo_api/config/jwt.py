@@ -1,6 +1,12 @@
 from os import getenv
 
 
+class JWTConfig:
+    ALGORITHM: str
+    SECRET: str
+    JWT_DECODE_LEEWAY: int
+
+
 class BaseConfig:
 	ALGORITHM = getenv('JWT_ALGORITHM', 'HS256')
 	JWT_DECODE_LEEWAY = 10

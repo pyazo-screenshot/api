@@ -1,9 +1,9 @@
-from fastapi.params import Depends
+from fastapi import Depends
 from passlib.hash import argon2
 
-from pyazo_api.domain.auth.dto.user import UserCredentials
-from pyazo_api.domain.auth.exceptions.auth import InvalidCredentialsException
-from pyazo_api.domain.auth.repositories.user import UserRepository
+from pyazo_api.domain.auth.dto import UserCredentials
+from pyazo_api.domain.auth.exceptions import InvalidCredentialsException
+from pyazo_api.domain.auth.repository import UserRepository
 from pyazo_api.util.auth import create_access_token
 
 
@@ -14,12 +14,10 @@ class LoginAction:
     ):
         self.user_repository = user_repository
 
-    def __call__(self, form_data: UserCredentials):
-        user = self.user_repository.query() \
-            .filter_by('username', form_data.username) \
-            .first()
+    async def __call__(self, form_data: UserCredentials):
+        user = await self.user_repository.get_by_username(form_data.username)
 
-        if not user or not argon2.verify(form_data.password, user.hashed_password):
+        if user is None or not argon2.verify(form_data.password, user.hashed_password):
             raise InvalidCredentialsException()
 
         token = create_access_token(

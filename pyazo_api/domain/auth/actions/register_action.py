@@ -2,9 +2,9 @@ from fastapi import Depends
 from passlib.handlers.argon2 import argon2
 
 from pyazo_api.domain.auth.actions.login_action import LoginAction
-from pyazo_api.domain.auth.dto.user import UserCreate, UserCredentials
-from pyazo_api.domain.auth.repositories.user import UserRepository
-from pyazo_api.domain.auth.exceptions.auth import UsernameTaken
+from pyazo_api.domain.auth.dto import UserCreate, UserCredentials
+from pyazo_api.domain.auth.repository import UserRepository
+from pyazo_api.domain.auth.exceptions import UsernameTaken
 
 
 class RegisterAction:
@@ -16,18 +16,11 @@ class RegisterAction:
         self.login_action = login_action
         self.user_repository = user_repository
 
-    def __call__(self, register_dto: UserCredentials):
+    async def __call__(self, register_dto: UserCredentials):
         user_create_data = UserCreate(
             username=register_dto.username,
             hashed_password=argon2.hash(register_dto.password)
         )
-        existing_user = self.user_repository \
-            .query() \
-            .filter_by('username', register_dto.username) \
-            .first()
-        if existing_user:
-            raise UsernameTaken()
+        await self.user_repository.save_user(user_create_data)
 
-        self.user_repository.create(user_create_data)
-
-        return self.login_action(register_dto)
+        return await self.login_action(register_dto)
