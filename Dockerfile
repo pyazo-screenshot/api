@@ -1,29 +1,33 @@
-FROM python:3.10 AS builder
+FROM python:3.10-bullseye AS builder
 
 WORKDIR /app
-ENV PATH="/root/.poetry/bin:$PATH"
+ENV PATH="/root/.local/bin:$PATH"
 
-RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python \
-  && python -m venv .venv \
-  && poetry config virtualenvs.in-project true
+RUN curl -sSL https://install.python-poetry.org | python3 - \
+    && python -m venv .venv \
+    && poetry config virtualenvs.in-project true
 
 COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-dev --no-root --no-interaction
 
 COPY pyazo_api/ ./pyazo_api/
 RUN set -x \
-  && poetry install --no-dev --no-interaction \
-  && rm -rf pyazo_api.egg-info
+    && poetry install --no-dev --no-interaction \
+    && rm -rf pyazo_api.egg-info
 
 
-FROM python:3.10-slim
+FROM python:3.10-slim-bullseye
 
 EXPOSE 8000
 WORKDIR /app
 ENTRYPOINT ["pyazo_api/entrypoint.sh"]
 ENV PATH="/app/.venv/bin:$PATH" \
-  PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1
 
-RUN mkdir -p media/private media/public
+RUN mkdir -p media/private media/public \
+    && apt update \
+    && apt install -y postgresql-client-13 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt clean
 
 COPY --from=builder /app/ ./
