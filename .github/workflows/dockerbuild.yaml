@@ -37,3 +37,4 @@ jobs:
         with:
           push: true
           tags: pyazo/migrations:latest
+          file: Dockerfile-migrations
