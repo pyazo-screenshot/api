@@ -25,7 +25,7 @@ class SaveImageAction:
         finally:
             upload_file.file.close()
 
-    async def __call__(self, upload_file: UploadFile, private: bool, clear_metadata: bool, uploader: UserGet) -> None:
+    async def __call__(self, upload_file: UploadFile, private: bool, clear_metadata: bool, uploader: UserGet) -> Image:
         random_string = uuid.uuid4()
         extension = upload_file.filename.split('.')[-1].lower()
         if extension not in ('jpg', 'jpeg', 'tiff', 'gif', 'bmp', 'png', 'webp'):
@@ -43,10 +43,10 @@ class SaveImageAction:
         if clear_metadata:
             subprocess.run(('exiftool', '-overwrite_original_in_place', '-all=', destination), stdout=subprocess.PIPE)
 
-        return await self.image_repository.save_image(
-            Image(
-                id=file_name,
-                owner_id=uploader.id,
-                private=private
-            )
+        img = Image(
+            id=file_name,
+            owner_id=uploader.id,
+            private=private
         )
+        await self.image_repository.save_image(img)
+        return img
