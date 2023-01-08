@@ -28,7 +28,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: pyazo/api:lastest
+          tags: pyazo/api:latest
 
       - name: Build and push migrations image
         uses: docker/build-push-action@v3
@@ -36,4 +36,4 @@ jobs:
           DOCKER_BUILDKIT: 1
         with:
           push: true
-          tags: pyazo/migrations:lastest
+          tags: pyazo/migrations:latest
