@@ -8,36 +8,35 @@ It is comprised of a cross-platform client written in Python which defers the ac
 
 ### Server
 
-* Python >= 3.10 (check with `python --version`)
+- Python >= 3.13 (check with `python --version`)
 
 ## Installation
 
 The only official supported way to run the server is through docker-compose. First make a copy of the `.env-example` file, name it `.env` and change the settings inside accordingly.
 
-| Key              | Default                    | Description                                                  |
-|------------------|----------------------------|--------------------------------------------------------------|
-| ENV              | production                 | FastAPI environment. Set to development to enable debugging  |
-| POSTGRES_USER    | pyazo                      | Username of the postgres user                                |
-| POSTGRES_PASSWORD| ' '                        | Password of the postgres user                                |
-| POSTGRES_DB      | pyazo                      | Database name                                                |
-| JWT_SECRET       | ' '                        | JWT secret                                                   |
-| BLOCK_REGISTER   | 'False'                    | Blocks registration if true                                  |
-| HOST_PUBLIC_MEDIA| /srv/http/pyazo            | Host public media path (Docker only)                         |
-| PUBLIC_PATH      | ./media/public/            | Public media storage path (non-Docker only)                  |
-| PRIVATE_PATH     | ./media/private/           | Private media storage path (non-Docker only)                 |
+| Key               | Default         | Description                                                 |
+| ----------------- | --------------- | ----------------------------------------------------------- |
+| ENV               | production      | FastAPI environment. Set to development to enable debugging |
+| POSTGRES_USER     | pyazo           | Username of the postgres user                               |
+| POSTGRES_PASSWORD | ' '             | Password of the postgres user                               |
+| POSTGRES_DB       | pyazo           | Database name                                               |
+| JWT_SECRET        | ' '             | JWT secret                                                  |
+| BLOCK_REGISTER    | 'False'         | Blocks registration if true                                 |
+| HOST_PUBLIC_MEDIA | /srv/http/pyazo | Host public media path (Docker only)                        |
+| IMAGE_PATH        | ./media/public/ | Public media storage path (non-Docker only)                 |
 
-Make a copy of the `docker-compose-prod.yml` file, name it `docker-compose.yml` and change the settings inside if needed.
+Make a copy of the `docker-compose-prod.yaml` file, name it `docker-compose.yaml` and change the settings inside if needed.
 
 Build the container using:
 
 ```shell
-docker-compose build
+docker compose build
 ```
 
 Then run it using:
 
 ```shell
-docker-compose up -d
+docker compose up -d
 ```
 
 Place a copy of the nginx.conf-example to /etc/nginx/conf.d/pyazo.conf and change the settings inside if needed.
@@ -45,12 +44,13 @@ Place a copy of the nginx.conf-example to /etc/nginx/conf.d/pyazo.conf and chang
 Restart nginx.
 
 ## Documentation
+
 https://pyazo.com/docs
 
 ## License and Credits
 
 BSD 3-Clause
 
-[Python]: <https://www.python.org/downloads/>
-[Docker]: <https://docs.docker.com/>
-[Docker Compose]: <https://docs.docker.com/compose/>
+[Python]: https://www.python.org/downloads/
+[Docker]: https://docs.docker.com/
+[Docker Compose]: https://docs.docker.com/compose/

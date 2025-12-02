@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: pyazo
+      POSTGRES_PASSWORD: pyazo
+      POSTGRES_DB: pyazo
+    ports:
+      - 127.0.0.1:5432:5432
+    volumes:
+      - db:/var/lib/postgresql
+
+  api:
+    image: pyazo/api
+    build: .
+    environment:
+      POSTGRES_USER: pyazo
+      POSTGRES_PASSWORD: pyazo
+      POSTGRES_DB: pyazo
+      POSTGRES_HOST: db
+      BLOCK_REGISTER: "false"
+    ports:
+      - 127.0.0.1:8000:8000
+
+volumes:
+  db:

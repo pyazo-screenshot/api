@@ -1,4 +1,4 @@
-from typing import Generic, Iterator, TypeVar, TypedDict
+from collections.abc import Iterator
 
 from pydantic import BaseModel
 from starlette.requests import Request
@@ -20,13 +20,12 @@ class PaginationRequest:
         return self.page * self.limit
 
 
-class PaginatedResults:
-    def __init__(self, results: list[BaseModel], next_page: int, count: int):
-        self.results = results
-        self.next_page = next_page
-        self.count = count
+class PaginatedResults(BaseModel):
+    results: list[BaseModel]
+    count: int
+    next_page: int
 
-    def __iter__(self) -> Iterator[BaseModel]:
+    def get_results(self) -> Iterator[BaseModel]:
         for result in self.results:
             yield result
 

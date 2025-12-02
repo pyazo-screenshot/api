@@ -1,5 +1,4 @@
-from typing import List
-
+from datetime import datetime
 from pydantic import BaseModel
 
 
@@ -7,7 +6,9 @@ class User(BaseModel):
     id: int
     username: str
     hashed_password: str
-    #  images: List
+
+    def to_public(self) -> "UserGet":
+        return UserGet(id=self.id, username=self.username)
 
 
 class UserCredentials(BaseModel):
@@ -33,5 +34,7 @@ class TokenResource(BaseModel):
     access_token: str
     token_type: str
 
+
 class TokenData(BaseModel):
-    username: str
+    sub: str
+    exp: datetime
