@@ -1,51 +1,54 @@
-from typing import Any
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Path, Response, UploadFile, status
+from fastapi import APIRouter, Depends, Path, Response, UploadFile, status
 
-from pyazo_api.domain.auth.dto import User, UserGet
+from pyazo_api.domain.auth.dto import User
 from pyazo_api.domain.images.actions.delete_image import DeleteImageAction
-from pyazo_api.domain.images.actions.save_image import SaveImageAction
 from pyazo_api.domain.images.actions.get_images import GetImagesAction
-from pyazo_api.util.pagination import PaginatedResults, PaginationRequest, extract_pagination
+from pyazo_api.domain.images.actions.save_image import SaveImageAction
+from pyazo_api.domain.images.dto import Image
 from pyazo_api.util.auth import get_current_user
+from pyazo_api.util.pagination import (
+    PaginatedResults,
+    PaginationRequest,
+    extract_pagination,
+)
 
 router = APIRouter()
 
 
-@router.post('', tags=["images"])
+@router.post("")
 async def upload_image(
-    upload_file: UploadFile = File(...),
-    private: bool = False,
+    upload_action: Annotated[SaveImageAction, Depends()],
+    authed_user: Annotated[User, Depends(get_current_user)],
+    upload_file: UploadFile,
     clear_metadata: bool = False,
-    upload_action: SaveImageAction = Depends(),
-    authed_user: User = Depends(get_current_user),
-):
+) -> Image:
     return await upload_action(
         upload_file,
-        private,
         clear_metadata,
-        UserGet(username=authed_user.username, id=authed_user.id)
+        authed_user.to_public(),
     )
 
 
-@router.delete('/{image_id}', tags=["images"])
+@router.delete("/{image_id}")
 async def delete_image(
     response: Response,
-    image_id: str = Path(..., title="The ID of the image to delete"),
-    authed_user: User = Depends(get_current_user),
-    delete_image_action: DeleteImageAction = Depends(DeleteImageAction),
-):
-    await delete_image_action(image_id, UserGet(username=authed_user.username, id=authed_user.id))
+    authed_user: Annotated[User, Depends(get_current_user)],
+    delete_image_action: Annotated[DeleteImageAction, Depends()],
+    image_id: Annotated[str, Path(title="The ID of the image to delete")],
+) -> None:
+    await delete_image_action(image_id, authed_user.to_public())
     response.status_code = status.HTTP_204_NO_CONTENT
 
 
-@router.get('', tags=["images"])
+@router.get("")
 async def get_images(
-    get_images_action: GetImagesAction = Depends(),
-    pagination: PaginationRequest = Depends(extract_pagination),
-    authed_user: User = Depends(get_current_user),
+    get_images_action: Annotated[GetImagesAction, Depends()],
+    pagination: Annotated[PaginationRequest, Depends(extract_pagination)],
+    authed_user: Annotated[User, Depends(get_current_user)],
 ) -> PaginatedResults:
     return await get_images_action(
-        UserGet(username=authed_user.username, id=authed_user.id),
+        authed_user.to_public(),
         pagination,
     )

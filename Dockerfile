@@ -1,33 +1,28 @@
-FROM python:3.10-bullseye AS builder
+FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim AS builder
 
 WORKDIR /app
-ENV PATH="/root/.local/bin:$PATH"
 
-RUN curl -sSL https://install.python-poetry.org | python3 - \
-    && python -m venv .venv \
-    && poetry config virtualenvs.in-project true
-
-COPY pyproject.toml poetry.lock ./
-RUN poetry install --no-dev --no-root --no-interaction
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-install-project --no-dev;
 
 COPY pyazo_api/ ./pyazo_api/
-RUN set -x \
-    && poetry install --no-dev --no-interaction \
-    && rm -rf pyazo_api.egg-info
+RUN uv sync --frozen --no-dev;
 
-
-FROM python:3.10-slim-bullseye
+FROM python:3.13-slim-trixie
 
 EXPOSE 8000
 WORKDIR /app
-ENTRYPOINT ["pyazo_api/entrypoint.sh"]
-ENV PATH="/app/.venv/bin:$PATH" \
-    PYTHONUNBUFFERED=1
+ENTRYPOINT ["/entrypoint.sh"]
+ENV PYTHONUNBUFFERED=1
+VOLUME /images
 
-RUN mkdir -p media/private media/public \
-    && apt update \
-    && apt install -y postgresql-client-13 \
+COPY --from=migrate/migrate /usr/local/bin/migrate /usr/bin/migrate
+
+RUN apt update \
+    && apt install -y postgresql-client \
     && rm -rf /var/lib/apt/lists/* \
-    && apt clean
+    && apt clean;
 
+COPY migrations/ ./migrations/
+COPY entrypoint.sh /entrypoint.sh
 COPY --from=builder /app/ ./
