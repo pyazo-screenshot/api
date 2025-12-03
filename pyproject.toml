@@ -6,26 +6,23 @@ authors = [{ name = "Jelena Dokic", email = "jelena.dpk@gmail.com" }]
 license = { text = "BSD-3-Clause" }
 requires-python = ">=3.13"
 dependencies = [
-    "Pillow==10.4.0",
-    "aiofiles==24.1.0",
-    "argon2-cffi==23.1.0",
-    "fastapi==0.115.12",
+    "Pillow==12.0.0",
+    "aiofiles==25.1.0",
+    "argon2-cffi==25.1.0",
+    "fastapi==0.123.5",
     "passlib==1.7.4",
-    "psycopg[pool]==3.2.6",
-    "pydantic-settings==2.9.1",
+    "psycopg[pool]==3.3.1",
+    "pydantic-settings==2.12.0",
     "pyjwt==2.10.1",
     "python-multipart==0.0.20",
-    "uvicorn==0.34.2",
+    "uvicorn==0.38.0",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest==8.3.5",
-    "pytest-env==1.1.5",
-    "requests==2.32.3",
-    "types-passlib==1.7.7.20250408",
+    "pytest==9.0.1",
+    "types-passlib==1.7.7.20250602",
     "types-pillow==10.2.0.20240822",
-    "httpx==0.28.1",
 ]
 
 [build-system]
