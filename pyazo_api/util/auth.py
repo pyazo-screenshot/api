@@ -38,13 +38,11 @@ async def get_user(
             algorithms=[settings.jwt_algorithm],
         )
     except PyJWTError as e:
-        print("AAAAAAAAAAAAAAAAAA", str(e))
         return None
 
     try:
         data = TokenData.model_validate(payload)
     except ValidationError as e:
-        print("BBBBBBBBBBBBBBBBBB", str(e))
         return None
 
     return await user_repository.get_by_username(data.sub)

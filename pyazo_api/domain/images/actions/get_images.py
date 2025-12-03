@@ -10,5 +10,9 @@ class GetImagesAction:
     def __init__(self, image_repository: Annotated[ImageRepository, Depends()]):
         self.image_repository: ImageRepository = image_repository
 
-    async def __call__(self, owner: UserGet, pagination: PaginationRequest) -> PaginatedResults:
-        return await self.image_repository.get_paginated_images_by_owner_id(owner.id, pagination)
+    async def __call__(
+        self, owner: UserGet, pagination: PaginationRequest
+    ) -> PaginatedResults:
+        return await self.image_repository.get_paginated_images_by_owner_id(
+            owner.id, pagination
+        )
