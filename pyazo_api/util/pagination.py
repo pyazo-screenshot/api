@@ -20,12 +20,12 @@ class PaginationRequest:
         return self.page * self.limit
 
 
-class PaginatedResults(BaseModel):
-    results: list[BaseModel]
+class PaginatedResults[T](BaseModel):
+    results: list[T]
     count: int
     next_page: int
 
-    def get_results(self) -> Iterator[BaseModel]:
+    def get_results(self) -> Iterator[T]:
         for result in self.results:
             yield result
 
