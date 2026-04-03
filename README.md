@@ -6,25 +6,25 @@ It is comprised of a cross-platform client written in Python which defers the ac
 
 ## Requirements
 
-- Go >= 1.24
+- Go >= 1.26
 - PostgreSQL
 
 ## Configuration
 
 Copy `.env-example` to `.env` and configure:
 
-| Key               | Default                 | Description                        |
-| ----------------- | ----------------------- | ---------------------------------- |
-| ENV               | production              | Set to development for debug mode  |
-| POSTGRES_USER     | pyazo                   | PostgreSQL username                |
-| POSTGRES_PASSWORD |                         | PostgreSQL password                |
-| POSTGRES_DB       | pyazo                   | Database name                      |
-| POSTGRES_HOST     | localhost               | Database host                      |
-| JWT_SECRET        |                         | JWT signing secret                 |
-| BLOCK_REGISTER    | true                    | Disable user registration          |
-| IMAGES_PATH       | /images                 | Image storage directory            |
-| CORS_ORIGIN       | https://app.pyazo.com   | Allowed CORS origin                |
-| PORT              | 8000                    | HTTP listen port                   |
+| Key               | Default               | Description                       |
+| ----------------- | --------------------- | --------------------------------- |
+| ENV               | production            | Set to development for debug mode |
+| POSTGRES_USER     | pyazo                 | PostgreSQL username               |
+| POSTGRES_PASSWORD |                       | PostgreSQL password               |
+| POSTGRES_DB       | pyazo                 | Database name                     |
+| POSTGRES_HOST     | localhost             | Database host                     |
+| JWT_SECRET        |                       | JWT signing secret                |
+| BLOCK_REGISTER    | true                  | Disable user registration         |
+| IMAGES_PATH       | /images               | Image storage directory           |
+| CORS_ORIGIN       | https://app.pyazo.com | Allowed CORS origin               |
+| PORT              | 8000                  | HTTP listen port                  |
 
 ## Development
 

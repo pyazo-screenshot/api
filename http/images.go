@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/exec"
@@ -12,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/pyazo-screenshot/api/db"
 )
 
@@ -62,6 +64,7 @@ func (s *Server) UploadImage(c *gin.Context) {
 
 	dst, err := os.Create(path)
 	if err != nil {
+		slog.Error("upload: failed to create file", "error", err, "path", path)
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Failed to save image"})
 		return
 	}
@@ -69,24 +72,29 @@ func (s *Server) UploadImage(c *gin.Context) {
 
 	if _, err := io.Copy(dst, file); err != nil {
 		os.Remove(path)
+		slog.Error("upload: failed to write file", "error", err, "path", path)
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Failed to save image"})
 		return
 	}
 	dst.Close()
 
 	if c.Query("clear_metadata") == "true" {
-		exec.CommandContext(c.Request.Context(),
-			"exiftool", "-overwrite_original_in_place", "-all=", path).Run()
+		if err := exec.CommandContext(c.Request.Context(),
+			"exiftool", "-overwrite_original_in_place", "-all=", path).Run(); err != nil {
+			slog.Warn("upload: exiftool failed", "error", err, "path", path)
+		}
 	}
 
 	if err := db.CreateImage(c.Request.Context(), s.pool, id, user.ID); err != nil {
 		os.Remove(path)
+		slog.Error("upload: failed to create image record", "error", err, "image_id", id)
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Failed to save image"})
 		return
 	}
 
 	img, err := db.GetImageByID(c.Request.Context(), s.pool, id)
 	if err != nil {
+		slog.Error("upload: failed to get image", "error", err, "image_id", id)
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
 		return
 	}
@@ -106,6 +114,7 @@ func (s *Server) ListImages(c *gin.Context) {
 
 	images, err := db.GetImagesByOwnerID(c.Request.Context(), s.pool, user.ID, limit, offset)
 	if err != nil {
+		slog.Error("list images: query failed", "error", err, "user_id", user.ID)
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
 		return
 	}
@@ -128,6 +137,7 @@ func (s *Server) DeleteImage(c *gin.Context) {
 
 	img, err := db.GetImageByID(c.Request.Context(), s.pool, imageID)
 	if err != nil {
+		slog.Error("delete image: query failed", "error", err, "image_id", imageID)
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
 		return
 	}
@@ -140,9 +150,12 @@ func (s *Server) DeleteImage(c *gin.Context) {
 		return
 	}
 
-	os.Remove(filepath.Join(s.config.ImagesPath, img.ID))
+	if err := os.Remove(filepath.Join(s.config.ImagesPath, img.ID)); err != nil {
+		slog.Warn("delete image: failed to remove file", "error", err, "image_id", img.ID)
+	}
 
 	if err := db.DeleteImageByID(c.Request.Context(), s.pool, imageID); err != nil {
+		slog.Error("delete image: db delete failed", "error", err, "image_id", imageID)
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
 		return
 	}

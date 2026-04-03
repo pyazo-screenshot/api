@@ -1,5 +1,8 @@
-# Binary
+# Build artifact
 /api
+
+# Tools
+bin/
 
 # Environment
 .env

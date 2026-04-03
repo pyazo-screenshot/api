@@ -1,0 +1,45 @@
+version: "2"
+run:
+  go: "1.26"
+linters:
+  enable:
+    - forbidigo
+    - lll
+    - prealloc
+    - predeclared
+    - staticcheck
+  disable:
+    - errcheck
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - deadcode
+          - gosimple (megacheck)
+          - govet (vet, vetshadow)
+          - ineffassign
+          - lll
+          - revive
+          - staticcheck
+          - staticcheck (megacheck)
+          - structcheck
+          - unused (megacheck)
+          - varcheck
+        path: mocks/
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - localmodule

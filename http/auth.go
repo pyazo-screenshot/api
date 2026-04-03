@@ -1,9 +1,11 @@
 package http
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/pyazo-screenshot/api/auth"
 	"github.com/pyazo-screenshot/api/db"
 )
@@ -22,6 +24,7 @@ func (s *Server) Login(c *gin.Context) {
 
 	user, err := db.GetUserByUsername(c.Request.Context(), s.pool, creds.Username)
 	if err != nil {
+		slog.Error("login: failed to get user", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
 		return
 	}
@@ -38,6 +41,7 @@ func (s *Server) Login(c *gin.Context) {
 
 	token, err := auth.CreateToken(user.Username, s.config.JWTSecret)
 	if err != nil {
+		slog.Error("login: failed to create token", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
 		return
 	}
@@ -62,6 +66,7 @@ func (s *Server) Register(c *gin.Context) {
 
 	hashed, err := auth.HashPassword(creds.Password)
 	if err != nil {
+		slog.Error("register: failed to hash password", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
 		return
 	}
@@ -71,6 +76,7 @@ func (s *Server) Register(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"detail": "Username already registered"})
 			return
 		}
+		slog.Error("register: failed to create user", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
 		return
 	}
@@ -78,6 +84,7 @@ func (s *Server) Register(c *gin.Context) {
 	// Auto-login after registration
 	token, err := auth.CreateToken(creds.Username, s.config.JWTSecret)
 	if err != nil {
+		slog.Error("register: failed to create token", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
 		return
 	}

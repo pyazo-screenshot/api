@@ -1,10 +1,13 @@
 package http
 
 import (
+	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/pyazo-screenshot/api/config"
 )
 
@@ -21,11 +24,32 @@ func NewServer(pool *pgxpool.Pool, cfg *config.Config) *Server {
 
 	s := &Server{pool: pool, config: cfg}
 
-	r := gin.Default()
+	r := gin.New()
+	r.Use(requestLogger(), gin.Recovery())
 	r.Use(s.cors())
 	s.registerRoutes(r)
 	s.Router = r
 	return s
+}
+
+func requestLogger() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+		status := c.Writer.Status()
+		attrs := []any{
+			"method", c.Request.Method,
+			"path", c.Request.URL.Path,
+			"status", status,
+			"duration", time.Since(start),
+			"ip", c.ClientIP(),
+		}
+		if status >= 500 {
+			slog.Error("request", attrs...)
+		} else {
+			slog.Info("request", attrs...)
+		}
+	}
 }
 
 func (s *Server) registerRoutes(r *gin.Engine) {

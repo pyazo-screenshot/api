@@ -1,10 +1,12 @@
 package http
 
 import (
+	"log/slog"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/pyazo-screenshot/api/auth"
 	"github.com/pyazo-screenshot/api/db"
 )
@@ -28,6 +30,7 @@ func (s *Server) AuthRequired() gin.HandlerFunc {
 
 		user, err := db.GetUserByUsername(c.Request.Context(), s.pool, username)
 		if err != nil {
+			slog.Error("auth middleware: failed to get user", "error", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
 			return
 		}

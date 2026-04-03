@@ -14,10 +14,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/pyazo-screenshot/api/auth"
-	"github.com/pyazo-screenshot/api/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/pyazo-screenshot/api/auth"
+	"github.com/pyazo-screenshot/api/config"
+	"github.com/pyazo-screenshot/api/db"
 )
 
 var testPool *pgxpool.Pool
@@ -27,10 +29,10 @@ func TestMain(m *testing.M) {
 
 	ctx := context.Background()
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=disable",
-		envOr("POSTGRES_USER", "pyazo"),
-		envOr("POSTGRES_PASSWORD", "pyazo"),
+		envOr("POSTGRES_USER", "postgres"),
+		envOr("POSTGRES_PASSWORD", "postgres"),
 		envOr("POSTGRES_HOST", "localhost"),
-		envOr("POSTGRES_DB", "pyazo"),
+		envOr("POSTGRES_DB", "postgres"),
 	)
 
 	pool, err := pgxpool.New(ctx, dsn)
@@ -39,6 +41,11 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	testPool = pool
+
+	if err := db.RunMigrations(dsn); err != nil {
+		fmt.Fprintf(os.Stderr, "migrations: %v\n", err)
+		os.Exit(1)
+	}
 
 	// Clean leftover test data from previous runs
 	cleanup(ctx, pool)

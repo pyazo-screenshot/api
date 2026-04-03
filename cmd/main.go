@@ -2,44 +2,42 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
+	"os"
 
-	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/pyazo-screenshot/api/config"
 	"github.com/pyazo-screenshot/api/db"
 	pyhttp "github.com/pyazo-screenshot/api/http"
-	"github.com/pyazo-screenshot/api/migrations"
 )
 
 func main() {
-	cfg := config.Load()
+	cfg, err := config.Load()
+	if err != nil {
+		slog.Error("config", "error", err)
+		os.Exit(1)
+	}
 
-	runMigrations(cfg.DatabaseURL())
+	if cfg.Env == "production" {
+		slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
+	}
+
+	if err := db.RunMigrations(cfg.DatabaseURL()); err != nil {
+		slog.Error("failed to run migrations", "error", err)
+		os.Exit(1)
+	}
 
 	pool, err := db.NewPool(context.Background(), cfg.DatabaseURL())
 	if err != nil {
-		log.Fatal("failed to connect to database: ", err)
+		slog.Error("failed to connect to database", "error", err)
+		os.Exit(1)
 	}
 	defer pool.Close()
 
 	s := pyhttp.NewServer(pool, cfg)
-	log.Fatal(s.Router.Run(":" + cfg.Port))
-}
-
-func runMigrations(databaseURL string) {
-	source, err := iofs.New(migrations.FS, ".")
-	if err != nil {
-		log.Fatal("failed to read migrations: ", err)
-	}
-
-	m, err := migrate.NewWithSourceInstance("iofs", source, databaseURL)
-	if err != nil {
-		log.Fatal("failed to create migrate instance: ", err)
-	}
-
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatal("failed to run migrations: ", err)
+	addr := ":" + cfg.Port
+	slog.Info("server starting", "addr", addr)
+	if err := s.Router.Run(addr); err != nil {
+		slog.Error("server failed", "error", err)
+		os.Exit(1)
 	}
 }
