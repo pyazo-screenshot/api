@@ -28,6 +28,14 @@ var allowedExtensions = map[string]bool{
 	"bmp": true, "png": true, "webp": true,
 }
 
+func imageJSON(img db.Image) gin.H {
+	return gin.H{
+		"id":         img.ID,
+		"owner_id":   img.OwnerID,
+		"created_at": img.CreatedAt,
+	}
+}
+
 func (s *Server) UploadImage(c *gin.Context) {
 	user := CurrentUser(c)
 
@@ -40,12 +48,12 @@ func (s *Server) UploadImage(c *gin.Context) {
 
 	parts := strings.Split(header.Filename, ".")
 	if len(parts) < 2 {
-		c.JSON(http.StatusBadRequest, gin.H{"detail": "Invalid file type"})
+		c.JSON(http.StatusUnsupportedMediaType, gin.H{"detail": "File type not supported"})
 		return
 	}
 	ext := strings.ToLower(parts[len(parts)-1])
 	if !allowedExtensions[ext] {
-		c.JSON(http.StatusBadRequest, gin.H{"detail": "Invalid file type"})
+		c.JSON(http.StatusUnsupportedMediaType, gin.H{"detail": "File type not supported"})
 		return
 	}
 
@@ -83,11 +91,7 @@ func (s *Server) UploadImage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"id":         img.ID,
-		"owner_id":   img.OwnerID,
-		"created_at": img.CreatedAt,
-	})
+	c.JSON(http.StatusOK, imageJSON(*img))
 }
 
 func (s *Server) ListImages(c *gin.Context) {
@@ -106,8 +110,13 @@ func (s *Server) ListImages(c *gin.Context) {
 		return
 	}
 
+	results := make([]gin.H, 0, len(images))
+	for _, img := range images {
+		results = append(results, imageJSON(img))
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"results":   images,
+		"results":   results,
 		"count":     len(images),
 		"next_page": page + 1,
 	})

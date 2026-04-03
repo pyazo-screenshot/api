@@ -14,19 +14,24 @@ const userKey = "user"
 func (s *Server) AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")
-		if !strings.HasPrefix(header, "Bearer ") {
+		scheme, token, ok := strings.Cut(header, " ")
+		if !ok || !strings.EqualFold(scheme, "Bearer") || token == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"detail": "Invalid access token"})
 			return
 		}
 
-		username, err := auth.ParseToken(strings.TrimPrefix(header, "Bearer "), s.config.JWTSecret)
+		username, err := auth.ParseToken(token, s.config.JWTSecret)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"detail": "Invalid access token"})
 			return
 		}
 
 		user, err := db.GetUserByUsername(c.Request.Context(), s.pool, username)
-		if err != nil || user == nil {
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
+			return
+		}
+		if user == nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"detail": "Invalid access token"})
 			return
 		}

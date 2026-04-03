@@ -29,8 +29,11 @@ func NewPool(ctx context.Context, databaseURL string) (*pgxpool.Pool, error) {
 }
 
 func GetUserByUsername(ctx context.Context, pool *pgxpool.Pool, username string) (*User, error) {
-	rows, _ := pool.Query(ctx,
+	rows, err := pool.Query(ctx,
 		"SELECT id, username, hashed_password FROM users WHERE username = $1", username)
+	if err != nil {
+		return nil, err
+	}
 	user, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[User])
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
@@ -51,8 +54,11 @@ func CreateUser(ctx context.Context, pool *pgxpool.Pool, username, hashedPasswor
 }
 
 func GetImageByID(ctx context.Context, pool *pgxpool.Pool, id string) (*Image, error) {
-	rows, _ := pool.Query(ctx,
+	rows, err := pool.Query(ctx,
 		"SELECT id, owner_id, created_at FROM images WHERE id = $1", id)
+	if err != nil {
+		return nil, err
+	}
 	img, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[Image])
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
@@ -61,9 +67,12 @@ func GetImageByID(ctx context.Context, pool *pgxpool.Pool, id string) (*Image, e
 }
 
 func GetImagesByOwnerID(ctx context.Context, pool *pgxpool.Pool, ownerID, limit, offset int) ([]Image, error) {
-	rows, _ := pool.Query(ctx,
+	rows, err := pool.Query(ctx,
 		"SELECT id, owner_id, created_at FROM images WHERE owner_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
 		ownerID, limit, offset)
+	if err != nil {
+		return nil, err
+	}
 	return pgx.CollectRows(rows, pgx.RowToStructByName[Image])
 }
 

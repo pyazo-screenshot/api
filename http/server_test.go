@@ -14,6 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pyazo-screenshot/api/auth"
 	"github.com/pyazo-screenshot/api/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -209,10 +210,44 @@ func TestMe(t *testing.T) {
 	assert.Equal(t, "test_me", parseBody(t, w)["username"])
 }
 
+func TestMeAcceptsLowercaseBearerScheme(t *testing.T) {
+	srv := newTestServer(t)
+	token := registerUser(t, srv.Router, "test_me_lowercase", "pass123")
+
+	w := doJSON(srv.Router, "GET", "/auth/me", nil, "Authorization", "bearer "+token)
+	require.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "test_me_lowercase", parseBody(t, w)["username"])
+}
+
 func TestMeUnauthorized(t *testing.T) {
 	srv := newTestServer(t)
 	w := doJSON(srv.Router, "GET", "/auth/me", nil)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
+func TestMeReturnsServerErrorWhenUserLookupFails(t *testing.T) {
+	closedPool, err := pgxpool.New(context.Background(), fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=disable",
+		envOr("POSTGRES_USER", "pyazo"),
+		envOr("POSTGRES_PASSWORD", "pyazo"),
+		envOr("POSTGRES_HOST", "localhost"),
+		envOr("POSTGRES_DB", "pyazo"),
+	))
+	require.NoError(t, err)
+	closedPool.Close()
+
+	srv := NewServer(closedPool, &config.Config{
+		Env:           "testing",
+		JWTSecret:     "test-jwt-secret",
+		BlockRegister: false,
+		ImagesPath:    t.TempDir(),
+		CORSOrigin:    "*",
+	})
+	token, err := auth.CreateToken("test_db_error", "test-jwt-secret")
+	require.NoError(t, err)
+
+	w := doJSON(srv.Router, "GET", "/auth/me", nil, "Authorization", "Bearer "+token)
+	require.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, "Internal server error", parseBody(t, w)["detail"])
 }
 
 // --- Images ---
@@ -239,7 +274,8 @@ func TestUploadInvalidFileType(t *testing.T) {
 	srv := newTestServer(t)
 	token := registerUser(t, srv.Router, "test_upload_bad", "pass123")
 	w := doMultipart(srv, "malware.exe", token)
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	require.Equal(t, http.StatusUnsupportedMediaType, w.Code)
+	assert.Equal(t, "File type not supported", parseBody(t, w)["detail"])
 }
 
 func TestListImages(t *testing.T) {
@@ -255,6 +291,15 @@ func TestListImages(t *testing.T) {
 	require.True(t, ok)
 	assert.Len(t, results, 2)
 	assert.Equal(t, float64(1), m["next_page"])
+
+	first, ok := results[0].(map[string]any)
+	require.True(t, ok)
+	assert.Contains(t, first, "id")
+	assert.Contains(t, first, "owner_id")
+	assert.Contains(t, first, "created_at")
+	assert.NotContains(t, first, "ID")
+	assert.NotContains(t, first, "OwnerID")
+	assert.NotContains(t, first, "CreatedAt")
 }
 
 func TestDeleteImage(t *testing.T) {

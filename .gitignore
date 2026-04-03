@@ -4,9 +4,12 @@
 # Environment
 .env
 
-# Editor
+# Editor and agent
 .idea
-.vscode/
+.vscode
+.claude
+.codex
+.opencode
 
-# OS
+# macOS
 .DS_Store
