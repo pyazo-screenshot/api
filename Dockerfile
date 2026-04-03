@@ -1,4 +1,4 @@
-FROM golang:1.26-trixie AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN go mod download
 COPY . .
 RUN go build -o /pyazo ./cmd/
 
-FROM debian:trixie-slim
+FROM alpine:3.23
 
 EXPOSE 8000
 
