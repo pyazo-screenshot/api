@@ -2,55 +2,55 @@
 
 Pyazo is a self-hosted screenshot and image upload utility. It allows you to take a screenshot of a part of your screen and automatically upload it to your own server. You can also directly upload an image from your computer.
 
-It is comprised of a cross-platform client written in Python which defers the actual taking of the screenshot to the built-in OS tools (macOS and Windows) or common utilities (Linux distributions). The server is written as a RESTful FastAPI app with support for basic user accounts and image sharing options.
+It is comprised of a cross-platform client written in Python which defers the actual taking of the screenshot to the built-in OS tools (macOS and Windows) or common utilities (Linux distributions). The server is a RESTful Go API with support for basic user accounts and image management.
 
-## Compatibility
+## Requirements
 
-### Server
+- Go >= 1.24
+- PostgreSQL
 
-- Python >= 3.13 (check with `python --version`)
+## Configuration
 
-## Installation
+Copy `.env-example` to `.env` and configure:
 
-The only official supported way to run the server is through docker-compose. First make a copy of the `.env-example` file, name it `.env` and change the settings inside accordingly.
+| Key               | Default                 | Description                        |
+| ----------------- | ----------------------- | ---------------------------------- |
+| ENV               | production              | Set to development for debug mode  |
+| POSTGRES_USER     | pyazo                   | PostgreSQL username                |
+| POSTGRES_PASSWORD |                         | PostgreSQL password                |
+| POSTGRES_DB       | pyazo                   | Database name                      |
+| POSTGRES_HOST     | localhost               | Database host                      |
+| JWT_SECRET        |                         | JWT signing secret                 |
+| BLOCK_REGISTER    | true                    | Disable user registration          |
+| IMAGES_PATH       | /images                 | Image storage directory            |
+| CORS_ORIGIN       | https://app.pyazo.com   | Allowed CORS origin                |
+| PORT              | 8000                    | HTTP listen port                   |
 
-| Key               | Default         | Description                                                 |
-| ----------------- | --------------- | ----------------------------------------------------------- |
-| ENV               | production      | FastAPI environment. Set to development to enable debugging |
-| POSTGRES_USER     | pyazo           | Username of the postgres user                               |
-| POSTGRES_PASSWORD | ' '             | Password of the postgres user                               |
-| POSTGRES_DB       | pyazo           | Database name                                               |
-| JWT_SECRET        | ' '             | JWT secret                                                  |
-| BLOCK_REGISTER    | 'False'         | Blocks registration if true                                 |
-| HOST_PUBLIC_MEDIA | /srv/http/pyazo | Host public media path (Docker only)                        |
-| IMAGE_PATH        | ./media/public/ | Public media storage path (non-Docker only)                 |
+## Development
 
-Make a copy of the `docker-compose-prod.yaml` file, name it `docker-compose.yaml` and change the settings inside if needed.
+```bash
+# Start PostgreSQL
+docker compose up -d db
 
-Build the container using:
+# Build
+go build -o api ./cmd/
 
-```shell
-docker compose build
+# Run
+POSTGRES_PASSWORD=pyazo JWT_SECRET=secret BLOCK_REGISTER=false ./api
+
+# Run tests
+POSTGRES_PASSWORD=pyazo go test ./...
 ```
 
-Then run it using:
+## Docker
 
-```shell
+```bash
+docker compose build
 docker compose up -d
 ```
 
-Place a copy of the nginx.conf-example to /etc/nginx/conf.d/pyazo.conf and change the settings inside if needed.
-
-Restart nginx.
-
-## Documentation
-
-https://pyazo.com/docs
+Images are stored at the `IMAGES_PATH` volume (`/images` by default) and should be served by a reverse proxy.
 
 ## License and Credits
 
 BSD 3-Clause
-
-[Python]: https://www.python.org/downloads/
-[Docker]: https://docs.docker.com/
-[Docker Compose]: https://docs.docker.com/compose/
