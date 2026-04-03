@@ -2,8 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log/slog"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/pyazo-screenshot/api/config"
 	"github.com/pyazo-screenshot/api/db"
@@ -18,7 +23,7 @@ func main() {
 	}
 
 	if cfg.Env == "production" {
-		slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
+		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, nil)))
 	}
 
 	if err := db.RunMigrations(cfg.DatabaseURL()); err != nil {
@@ -35,9 +40,29 @@ func main() {
 
 	s := pyhttp.NewServer(pool, cfg)
 	addr := ":" + cfg.Port
-	slog.Info("server starting", "addr", addr)
-	if err := s.Router.Run(addr); err != nil {
-		slog.Error("server failed", "error", err)
+
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: s.Router,
+	}
+
+	go func() {
+		slog.Info("server starting", "addr", addr)
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			slog.Error("server failed", "error", err)
+			os.Exit(1)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	slog.Info("shutting down server")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		slog.Error("server forced to shutdown", "error", err)
 		os.Exit(1)
 	}
 }
