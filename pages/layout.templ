@@ -1,0 +1,44 @@
+package pages
+
+func mainClass(route string) string {
+	if route == "auth" {
+		return "auth-page"
+	}
+	return "page"
+}
+
+templ Layout(title string, route string, username string) {
+	<!doctype html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<meta name="theme-color" content="#16161a"/>
+			<title>{ title }</title>
+			<link rel="icon" href="/assets/logo.svg" type="image/svg+xml"/>
+			<link rel="stylesheet" href="/assets/app.css"/>
+			<script src="/assets/app.js" defer></script>
+		</head>
+		<body>
+			if username != "" {
+				<header class="topbar">
+					<a class="brand" href="/" aria-label="Pyazo home">
+						<img class="brand-mark" src="/assets/logo.svg" alt="" aria-hidden="true"/>
+						<span>Pyazo</span>
+					</a>
+					<div class="session">
+						<span>{ username }</span>
+						<form method="post" action="/logout">
+							<button class="logout-button" type="submit" aria-label="Log out">
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h8a2 2 0 0 1 2 2v3h-2V5H5v14h8v-3h2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm10.6 5.4L17 7l5 5-5 5-1.4-1.4 2.6-2.6H9v-2h9.2l-2.6-2.6Z"></path></svg>
+							</button>
+						</form>
+					</div>
+				</header>
+			}
+			<main class={ mainClass(route) }>
+				{ children... }
+			</main>
+		</body>
+	</html>
+}

@@ -1,0 +1,47 @@
+package pages
+
+templ AuthLogo() {
+	<img class="auth-logo" src="/assets/logo.svg" alt="Pyazo"/>
+}
+
+templ LoginPage(errorMsg string) {
+	@Layout("Log in - Pyazo", "auth", "") {
+		<form class="auth-card" method="post" action="/login">
+			@AuthLogo()
+			<h1>Welcome to Pyazo</h1>
+			if errorMsg != "" {
+				<p class="error" role="alert">{ errorMsg }</p>
+			}
+			<label for="username">Username</label>
+			<input id="username" name="username" type="text" placeholder="Enter your username" required autofocus/>
+			<label for="password">Password</label>
+			<input id="password" name="password" type="password" placeholder="Enter your password" required/>
+			<button class="button" type="submit">Log in</button>
+			<p class="auth-footer"><a href="/register">Sign up</a></p>
+		</form>
+	}
+}
+
+templ RegisterPage(errorMsg string, disabled bool) {
+	@Layout("Register - Pyazo", "auth", "") {
+		<form class="auth-card" method="post" action="/register">
+			@AuthLogo()
+			<h1>Let's set up your new account</h1>
+			if disabled {
+				<p class="error" role="alert">Registration is disabled.</p>
+			} else {
+				if errorMsg != "" {
+					<p class="error" role="alert">{ errorMsg }</p>
+				}
+				<label for="username">Username</label>
+				<input id="username" name="username" type="text" placeholder="Enter your username" required autofocus/>
+				<label for="password">Password</label>
+				<input id="password" name="password" type="password" placeholder="Enter your password" required/>
+				<label for="confirm-password">Confirm password</label>
+				<input id="confirm-password" name="confirm_password" type="password" placeholder="Enter your password again" required/>
+				<button class="button" type="submit">Register</button>
+			}
+			<p class="auth-footer"><a href="/login">Already have an account?</a></p>
+		</form>
+	}
+}

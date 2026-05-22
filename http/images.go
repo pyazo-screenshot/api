@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"crypto/rand"
 	"fmt"
 	"io"
@@ -132,33 +133,59 @@ func (s *Server) ListImages(c *gin.Context) {
 }
 
 func (s *Server) DeleteImage(c *gin.Context) {
-	user := CurrentUser(c)
-	imageID := c.Param("id")
+	status, detail := s.deleteImage(c.Request.Context(), CurrentUser(c), c.Param("id"))
+	if status == http.StatusNoContent {
+		c.Status(http.StatusNoContent)
+		return
+	}
+	c.JSON(status, gin.H{"detail": detail})
+}
 
-	img, err := db.GetImageByID(c.Request.Context(), s.pool, imageID)
+func (s *Server) ServeImageFile(c *gin.Context) {
+	if c.Request.Method != http.MethodGet && c.Request.Method != http.MethodHead {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	id := strings.TrimPrefix(c.Request.URL.Path, "/")
+	ext := strings.TrimPrefix(strings.ToLower(filepath.Ext(id)), ".")
+	if id == "" || strings.Contains(id, "/") || strings.Contains(id, "\\") ||
+		strings.Contains(id, "..") || !allowedExtensions[ext] {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	path := filepath.Join(s.config.ImagesPath, id)
+	info, err := os.Stat(path)
+	if err != nil || info.IsDir() {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	c.File(path)
+}
+
+func (s *Server) deleteImage(ctx context.Context, user *db.User, imageID string) (int, string) {
+	img, err := db.GetImageByID(ctx, s.pool, imageID)
 	if err != nil {
 		slog.Error("delete image: query failed", "error", err, "image_id", imageID)
-		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
-		return
+		return http.StatusInternalServerError, "Internal server error"
 	}
 	if img == nil {
-		c.JSON(http.StatusNotFound, gin.H{"detail": "Image not found"})
-		return
+		return http.StatusNotFound, "Image not found"
 	}
 	if img.OwnerID != user.ID {
-		c.JSON(http.StatusForbidden, gin.H{"detail": "Forbidden"})
-		return
+		return http.StatusForbidden, "Forbidden"
 	}
 
 	if err := os.Remove(filepath.Join(s.config.ImagesPath, img.ID)); err != nil {
 		slog.Warn("delete image: failed to remove file", "error", err, "image_id", img.ID)
 	}
 
-	if err := db.DeleteImageByID(c.Request.Context(), s.pool, imageID); err != nil {
+	if err := db.DeleteImageByID(ctx, s.pool, imageID); err != nil {
 		slog.Error("delete image: db delete failed", "error", err, "image_id", imageID)
-		c.JSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
-		return
+		return http.StatusInternalServerError, "Internal server error"
 	}
 
-	c.Status(http.StatusNoContent)
+	return http.StatusNoContent, ""
 }

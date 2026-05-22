@@ -8,8 +8,10 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -94,6 +96,42 @@ func doJSON(router http.Handler, method, path string, body any, headers ...strin
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	return w
+}
+
+func doForm(
+	router http.Handler,
+	method string,
+	path string,
+	values url.Values,
+	cookies ...*http.Cookie,
+) *httptest.ResponseRecorder {
+	req := httptest.NewRequest(method, path, strings.NewReader(values.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	for _, cookie := range cookies {
+		req.AddCookie(cookie)
+	}
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	return w
+}
+
+func doWithCookie(router http.Handler, method, path, token string) *httptest.ResponseRecorder {
+	req := httptest.NewRequest(method, path, nil)
+	req.AddCookie(&http.Cookie{Name: sessionCookieName, Value: token})
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	return w
+}
+
+func sessionCookie(t *testing.T, w *httptest.ResponseRecorder) *http.Cookie {
+	t.Helper()
+	for _, cookie := range w.Result().Cookies() {
+		if cookie.Name == sessionCookieName {
+			return cookie
+		}
+	}
+	require.Fail(t, "missing session cookie")
+	return nil
 }
 
 func parseBody(t *testing.T, w *httptest.ResponseRecorder) map[string]any {
@@ -255,6 +293,120 @@ func TestMeReturnsServerErrorWhenUserLookupFails(t *testing.T) {
 	w := doJSON(srv.Router, "GET", "/auth/me", nil, "Authorization", "Bearer "+token)
 	require.Equal(t, http.StatusInternalServerError, w.Code)
 	assert.Equal(t, "Internal server error", parseBody(t, w)["detail"])
+}
+
+// --- Web pages ---
+
+func TestLoginPage(t *testing.T) {
+	srv := newTestServer(t)
+
+	req := httptest.NewRequest("GET", "/login", nil)
+	w := httptest.NewRecorder()
+	srv.Router.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestWebIndexRedirectsWithoutSession(t *testing.T) {
+	srv := newTestServer(t)
+
+	req := httptest.NewRequest("GET", "/", nil)
+	w := httptest.NewRecorder()
+	srv.Router.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusFound, w.Code)
+	assert.Equal(t, "/login", w.Header().Get("Location"))
+}
+
+func TestWebLoginSetsSessionCookie(t *testing.T) {
+	srv := newTestServer(t)
+	registerUser(t, srv.Router, "test_web_login", "pass123")
+
+	w := doForm(srv.Router, "POST", "/login", url.Values{
+		"username": {"test_web_login"},
+		"password": {"pass123"},
+	})
+
+	require.Equal(t, http.StatusSeeOther, w.Code)
+	assert.Equal(t, "/", w.Header().Get("Location"))
+	cookie := sessionCookie(t, w)
+	assert.NotEmpty(t, cookie.Value)
+	assert.True(t, cookie.HttpOnly)
+}
+
+func TestWebRegisterSetsSessionCookie(t *testing.T) {
+	srv := newTestServer(t)
+
+	w := doForm(srv.Router, "POST", "/register", url.Values{
+		"username":         {"test_web_register"},
+		"password":         {"pass123"},
+		"confirm_password": {"pass123"},
+	})
+
+	require.Equal(t, http.StatusSeeOther, w.Code)
+	assert.Equal(t, "/", w.Header().Get("Location"))
+	assert.NotEmpty(t, sessionCookie(t, w).Value)
+}
+
+func TestWebImagesPage(t *testing.T) {
+	srv := newTestServer(t)
+	token := registerUser(t, srv.Router, "test_web_images", "pass123")
+	uploadImage(t, srv, token, "web.png")
+
+	w := doWithCookie(srv.Router, "GET", "/", token)
+
+	require.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestWebImagesFragment(t *testing.T) {
+	srv := newTestServer(t)
+	token := registerUser(t, srv.Router, "test_web_images_fragment", "pass123")
+	uploadImage(t, srv, token, "fragment-a.png")
+	uploadImage(t, srv, token, "fragment-b.png")
+
+	w := doWithCookie(srv.Router, "GET", "/web/images?page=0&limit=1", token)
+
+	require.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestWebDeleteImage(t *testing.T) {
+	srv := newTestServer(t)
+	token := registerUser(t, srv.Router, "test_web_delete", "pass123")
+	img := uploadImage(t, srv, token, "web-delete.png")
+	id := img["id"].(string)
+
+	w := doWithCookie(srv.Router, "DELETE", "/web/images/"+id, token)
+
+	require.Equal(t, http.StatusNoContent, w.Code)
+	assert.NoFileExists(t, filepath.Join(srv.config.ImagesPath, id))
+
+	w = doJSON(srv.Router, "GET", "/images", nil, "Authorization", "Bearer "+token)
+	results := parseBody(t, w)["results"].([]any)
+	assert.Empty(t, results)
+}
+
+func TestServeImageFile(t *testing.T) {
+	srv := newTestServer(t)
+	token := registerUser(t, srv.Router, "test_serve_image", "pass123")
+	img := uploadImage(t, srv, token, "served.png")
+	id := img["id"].(string)
+
+	req := httptest.NewRequest("GET", "/"+id, nil)
+	w := httptest.NewRecorder()
+	srv.Router.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "fake image data", w.Body.String())
+}
+
+func TestServeImageFileRejectsNestedPath(t *testing.T) {
+	srv := newTestServer(t)
+
+	req := httptest.NewRequest("GET", "/nested/file.png", nil)
+	w := httptest.NewRecorder()
+	srv.Router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
 // --- Images ---

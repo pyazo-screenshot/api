@@ -1,0 +1,86 @@
+package pages
+
+import (
+	"fmt"
+	"time"
+
+	templpkg "github.com/a-h/templ"
+
+	"github.com/pyazo-screenshot/api/db"
+)
+
+func imagePath(id string) string {
+	return "/" + id
+}
+
+func imageHref(id string) templpkg.SafeURL {
+	return templpkg.SafeURL(imagePath(id))
+}
+
+func webImagePath(id string) string {
+	return "/web/images/" + id
+}
+
+func webImagesPath(page int, limit int) string {
+	return fmt.Sprintf("/web/images?page=%d&limit=%d", page, limit)
+}
+
+func pageHref(page int, limit int) templpkg.SafeURL {
+	return templpkg.SafeURL(fmt.Sprintf("/?page=%d&limit=%d", page, limit))
+}
+
+func imageTime(t time.Time) string {
+	return t.Format("2006-01-02 15:04")
+}
+
+templ ImageCard(img db.Image) {
+	<article id={ "image-" + img.ID } class="image-card">
+		<a class="image-link" href={ imageHref(img.ID) } target="_blank" rel="noopener noreferrer">
+			<img src={ imagePath(img.ID) } alt={ img.ID } loading="lazy"/>
+		</a>
+		<div class="image-meta">
+			<time class="image-date" datetime={ img.CreatedAt.Format(time.RFC3339) }>{ imageTime(img.CreatedAt) }</time>
+			<button
+				class="delete-button"
+				type="button"
+				aria-label={ "Delete " + img.ID }
+				data-delete-url={ webImagePath(img.ID) }
+			>
+				<img src="/assets/trash-can.svg" alt="" aria-hidden="true"/>
+			</button>
+		</div>
+	</article>
+}
+
+templ ImageCards(images []db.Image) {
+	for _, img := range images {
+		@ImageCard(img)
+	}
+}
+
+templ LoadMore(page int, limit int, hasMore bool) {
+	if hasMore {
+		<div id="load-more" class="load-more" data-load-url={ webImagesPath(page, limit) }>
+			<a class="button secondary" href={ pageHref(page, limit) }>Load more</a>
+		</div>
+	} else {
+		<div id="load-more" class="load-more"></div>
+	}
+}
+
+templ ImagesFragment(images []db.Image, nextPage int, limit int, hasMore bool) {
+	@ImageCards(images)
+	@LoadMore(nextPage, limit, hasMore)
+}
+
+templ ImagesPage(username string, images []db.Image, nextPage int, limit int, hasMore bool) {
+	@Layout("Pyazo", "images", username) {
+		if len(images) == 0 {
+			<p class="empty">No images yet.</p>
+		}
+		<div id="image-grid" class="image-grid">
+			@ImageCards(images)
+		</div>
+		@LoadMore(nextPage, limit, hasMore)
+	}
+}

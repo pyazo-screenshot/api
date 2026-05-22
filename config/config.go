@@ -28,7 +28,7 @@ func Load() (*Config, error) {
 		PostgresDB:       optional("POSTGRES_DB", "pyazo"),
 		PostgresHost:     optional("POSTGRES_HOST", "localhost"),
 		JWTSecret:        required("JWT_SECRET", &missing),
-		BlockRegister:    strings.ToLower(optional("BLOCK_REGISTER", "true")) != "false",
+		BlockRegister:    optional("BLOCK_REGISTER", "true") != "false",
 		ImagesPath:       optional("IMAGES_PATH", "/images"),
 		CORSOrigin:       optional("CORS_ORIGIN", "https://app.pyazo.com"),
 		Port:             optional("PORT", "8000"),

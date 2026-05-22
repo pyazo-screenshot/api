@@ -53,6 +53,21 @@ func requestLogger() gin.HandlerFunc {
 }
 
 func (s *Server) registerRoutes(r *gin.Engine) {
+	r.Static("/assets", "./assets")
+
+	r.GET("/login", s.LoginPage)
+	r.POST("/login", s.HandleLoginPage)
+	r.GET("/register", s.RegisterPage)
+	r.POST("/register", s.HandleRegisterPage)
+	r.POST("/logout", s.LogoutPage)
+
+	web := r.Group("", s.WebAuthRequired())
+	{
+		web.GET("/", s.ImagesPage)
+		web.GET("/web/images", s.ImageCardsPage)
+		web.DELETE("/web/images/:id", s.DeleteImagePage)
+	}
+
 	a := r.Group("/auth")
 	{
 		a.POST("/login", s.Login)
@@ -66,6 +81,8 @@ func (s *Server) registerRoutes(r *gin.Engine) {
 		img.GET("", s.ListImages)
 		img.DELETE("/:id", s.DeleteImage)
 	}
+
+	r.NoRoute(s.ServeImageFile)
 }
 
 func (s *Server) cors() gin.HandlerFunc {

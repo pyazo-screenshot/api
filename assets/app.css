@@ -1,0 +1,297 @@
+:root {
+  color-scheme: dark;
+  --background: #16161a;
+  --background-dark: #101013;
+  --card: #1f1f26;
+  --border: #2f2f3a;
+  --text: #fffffe;
+  --muted: #94a1b2;
+  --primary: #7f5af0;
+  --primary-dark: #6546cb;
+  --primary-light: #a591f6;
+  --danger: #ef4565;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+a {
+  color: var(--primary-light);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.auth-card {
+  width: min(100%, 28rem);
+  padding: 2rem;
+  border-radius: 1rem;
+  background: var(--background);
+}
+
+.auth-card h1 {
+  margin: 0 0 1.75rem;
+  text-align: center;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 500;
+}
+
+.auth-logo,
+.brand-mark {
+  display: block;
+  object-fit: contain;
+}
+
+.auth-logo {
+  width: 12rem;
+  height: 12rem;
+  margin: 0 auto 1rem;
+}
+
+.auth-card label {
+  display: block;
+  margin: 1rem 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--primary);
+  border-radius: 0.5rem;
+  background: var(--background-dark);
+  color: var(--text);
+  outline: none;
+}
+
+.auth-card input:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.button {
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--primary);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.button:hover {
+  background: var(--primary-dark);
+}
+
+.button.secondary {
+  width: auto;
+  padding-inline: 1.5rem;
+}
+
+.auth-footer {
+  margin: 1.25rem 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.error {
+  margin: 0 0 1rem;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background-dark) 88%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.brand,
+.session {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand {
+  color: var(--text);
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+}
+
+.session {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.logout-button {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--primary-light);
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  border-color: var(--primary);
+  background: var(--card);
+}
+
+.logout-button svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  fill: currentColor;
+}
+
+.page {
+  width: min(100%, 120rem);
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.empty {
+  padding: 2rem;
+  border: 1px dashed var(--border);
+  border-radius: 1rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: 1.25rem;
+}
+
+.image-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--card);
+}
+
+.image-link {
+  display: block;
+  height: 18rem;
+  overflow: hidden;
+  background: var(--background-dark);
+}
+
+.image-link img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.image-meta {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.image-date {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.delete-button {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--primary);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background: var(--primary-dark);
+}
+
+.delete-button img {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.load-more {
+  min-height: 5rem;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+@media (max-width: 40rem) {
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .session {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .auth-card {
+    padding: 1.25rem;
+  }
+}

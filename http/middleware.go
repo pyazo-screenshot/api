@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -11,7 +12,26 @@ import (
 	"github.com/pyazo-screenshot/api/db"
 )
 
-const userKey = "user"
+const (
+	userKey           = "user"
+	sessionCookieName = "pyazo_token"
+)
+
+func (s *Server) userFromToken(ctx context.Context, token string) (*db.User, bool, error) {
+	username, err := auth.ParseToken(token, s.config.JWTSecret)
+	if err != nil {
+		return nil, false, nil
+	}
+
+	user, err := db.GetUserByUsername(ctx, s.pool, username)
+	if err != nil {
+		return nil, false, err
+	}
+	if user == nil {
+		return nil, false, nil
+	}
+	return user, true, nil
+}
 
 func (s *Server) AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -22,20 +42,40 @@ func (s *Server) AuthRequired() gin.HandlerFunc {
 			return
 		}
 
-		username, err := auth.ParseToken(token, s.config.JWTSecret)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"detail": "Invalid access token"})
-			return
-		}
-
-		user, err := db.GetUserByUsername(c.Request.Context(), s.pool, username)
+		user, valid, err := s.userFromToken(c.Request.Context(), token)
 		if err != nil {
 			slog.Error("auth middleware: failed to get user", "error", err)
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"detail": "Internal server error"})
 			return
 		}
-		if user == nil {
+		if !valid {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"detail": "Invalid access token"})
+			return
+		}
+
+		c.Set(userKey, user)
+		c.Next()
+	}
+}
+
+func (s *Server) WebAuthRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		cookie, err := c.Request.Cookie(sessionCookieName)
+		if err != nil || cookie.Value == "" {
+			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
+			return
+		}
+
+		user, valid, err := s.userFromToken(c.Request.Context(), cookie.Value)
+		if err != nil {
+			slog.Error("web auth middleware: failed to get user", "error", err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		if !valid {
+			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
 			return
 		}
 
